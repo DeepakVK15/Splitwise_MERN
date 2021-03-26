@@ -6,6 +6,7 @@ import validator from "validator";
 import Cookies from "universal-cookie";
 import { connect } from "react-redux";
 import { userSignup } from "../../actions/signupAction";
+import jwt_decode from "jwt-decode";
 
 class Signup extends Component {
   constructor(props) {
@@ -60,13 +61,21 @@ class Signup extends Component {
     } else if (data.password.length < 8) {
       this.setState({ message: "Password length must be 8 or more." });
     } else {
+      console.log("create method");
       this.props.userSignup(data);
     }
   };
   render() {
     let redirectVar = null;
     let errMsg = null;
-    console.log("Message after signup", this.props.user.message);
+    if (this.props.user.token) {
+      var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
+      if (this.props.user.token.length > 0) {
+        localStorage.setItem("token", this.props.user.token);
+        localStorage.setItem("_id", decoded._id);
+        localStorage.setItem("email", decoded.email);
+      }
+    }
 
     if (this.props.user && this.props.user.message === "sign up success") {
       const cookies = new Cookies();
@@ -147,4 +156,3 @@ const mapStateToProps = (state) => {
   };
 };
 export default connect(mapStateToProps, { userSignup })(Signup);
-// export default signup;

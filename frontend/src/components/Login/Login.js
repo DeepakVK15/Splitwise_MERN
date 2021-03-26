@@ -6,7 +6,7 @@ import { userLogin } from "../../actions/loginAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router";
-import cookie from "react-cookies";
+import jwt_decode from "jwt-decode";
 
 class Login extends Component {
   constructor(props) {
@@ -16,7 +16,7 @@ class Login extends Component {
       email: "",
       password: "",
       message: "",
-      redirectVar: null,
+      redirectVar: null
     };
 
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
@@ -48,16 +48,23 @@ class Login extends Component {
       email: this.state.email,
       password: this.state.password,
     };
-    console.log("Calling login");
     this.props.userLogin(data);
   };
 
   render() {
+    if (this.props.user.token) {
+      var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
+      if (this.props.user.token.length > 0) {
+        localStorage.setItem("token", this.props.user.token);
+        localStorage.setItem("_id", decoded._id);
+        localStorage.setItem("email", decoded.email);
+      }
+    }
+
     let errMsg = null;
-    if (cookie.load("cookie")) {
+    if (localStorage.getItem("email")) {
       this.setState({ redirectVar: <Redirect to="/dashboard" /> });
     }
-    console.log("Login message", this.props.user.message);
     if (this.props.user && this.props.user.message === "login success") {
       this.setState({ redirectVar: <Redirect to="/dashboard" /> });
     } else if (
