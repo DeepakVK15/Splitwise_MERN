@@ -15,7 +15,10 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "mongoose": "^5.12.2"
+    "mongoose": "^5.12.2",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "password-hash": "^1.2.2"
   },
   "devDependencies": {
     "eslint": "^7.22.0",
