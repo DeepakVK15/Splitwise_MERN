@@ -74,6 +74,8 @@ class Signup extends Component {
         localStorage.setItem("token", this.props.user.token);
         localStorage.setItem("_id", decoded._id);
         localStorage.setItem("email", decoded.email);
+        localStorage.setItem("name",decoded.name);
+        localStorage.setItem("currency",decoded.currency);
       }
     }
 
