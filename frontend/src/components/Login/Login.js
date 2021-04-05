@@ -52,12 +52,14 @@ class Login extends Component {
   };
 
   render() {
-    if (this.props.user.token) {
-      var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
-      if (this.props.user.token.length > 0) {
+    if (this.props.user) {
+      if (this.props.user.token && this.props.user.token.length > 0) {
+        var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
         localStorage.setItem("token", this.props.user.token);
         localStorage.setItem("_id", decoded._id);
         localStorage.setItem("email", decoded.email);
+        localStorage.setItem("name",decoded.name);
+        localStorage.setItem("currency",decoded.currency);
       }
     }
 

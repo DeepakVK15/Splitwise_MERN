@@ -1,7 +1,7 @@
 .dashboard{
     display:flex; 
     flex-direction:row;
-     margin-left:275px
+     margin-left:275px;
     }
 
 .dropdown{
@@ -10,6 +10,6 @@
 }
 
 .split{
-    margin-right:1150px
+    margin-right:1150px;
 }
 

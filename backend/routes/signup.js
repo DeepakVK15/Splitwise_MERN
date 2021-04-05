@@ -31,13 +31,18 @@ router.post("/", (req, res) => {
           res.end();
           console.log(error);
         } else {
-            res.cookie("cookie", newuser.email, {
-                maxAge: 900000,
-                httpOnly: false,
-                path: "/",
-              });
-              req.session.user = user;
-          const payload = { _id: data._id, email: newuser.email };
+          res.cookie("cookie", newuser.email, {
+            maxAge: 900000,
+            httpOnly: false,
+            path: "/",
+          });
+          req.session.user = user;
+          const payload = {
+            _id: data._id,
+            email: newuser.email,
+            name: newuser.name,
+            currency: newuser.currency,
+          };
           const token = jwt.sign(payload, secret, {
             expiresIn: 1008000,
           });

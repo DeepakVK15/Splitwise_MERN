@@ -1,0 +1,17 @@
+.upload{
+    margin-left: 50;
+    
+    }
+    
+    .createGroup
+    {
+        font-size: 20px;
+        color:white;
+        background-color:orangered ;
+        margin-left: 200px;
+    }
+    
+    .popups{
+        display:flex; 
+        flex-direction:row;
+    }

@@ -1,102 +1,106 @@
 import React, { Component } from "react";
-// import { Dropdown, Navbar, Nav } from "react-bootstrap";
-// import head from "./logo.png";
-// import { Redirect } from "react-router";
-// import cookie from "react-cookies";
+import { Dropdown, Navbar, Nav } from "react-bootstrap";
+import head from "./logo.png";
+import { Redirect } from "react-router";
 import { userLogout } from "../../actions/loginAction";
-// import CenterPage from "../centerpage/CenterPage";
+import Centerpage from "../Centerpage/Centerpage";
 import { connect } from "react-redux";
-// import "./dashboard.css";
-// import axios from "axios";
-// import {uri} from '../../uri';
+import "./dashboard.css";
+import cookie from "react-cookies";
 
 class Dashboard extends Component {
-  // constructor(props) {
-  //   //Call the constrictor of Super class i.e The Component
-  //   super(props);
-  //   //maintain the state required for this component
-  //   this.state = {
-  //     redirectVar: null,
-  //     email: cookie.load("cookie"),
-  //     user: "",
-  //   };
-  //   this.landingPage = this.landingPage.bind(this);
-  // }
+  constructor(props) {
+    //Call the constrictor of Super class i.e The Component
+    super(props);
+    //maintain the state required for this component
+    this.state = {
+      redirectVar: null,
+      email: localStorage.getItem("email"),
+      user: localStorage.getItem("name")
+    };
+    this.landingPage = this.landingPage.bind(this);
+    this.createGroup = this.createGroup.bind(this);
+    this.activity = this.activity.bind(this);
+    this.profile = this.profile.bind(this);
+    this.mygroups = this.mygroups.bind(this);
+  }
 
-  // landingPage = () => {
-  //   this.setState({ redirectVar: <Redirect to="/" /> });
-  //   cookie.remove("cookie");
-  //   this.props.userLogout();
-  // };
+  landingPage = () => {
+    this.props.userLogout();
+    window.localStorage.clear();
+    cookie.remove("cookie");
+    this.setState({ redirectVar: <Redirect to="/" /> });
+  };
 
-  // componentDidMount() {
-  //   console.log("here ", this.state.email);
-  //   if (this.state.email) {
-  //     axios
-  //       .get(`${uri}/login/user/`, {
-  //         params: { email: this.state.email },
-  //       })
-  //       .then((response) => {
-  //         //update the state with the response data
-  //         this.setState({
-  //           user: response.data,
-  //         });
-  //       });
-  //   }
-  // }
+  createGroup = () => {
+    this.setState({ redirectVar: <Redirect to="/creategroup" /> });
+  }
+
+  profile = () => {
+    this.setState({ redirectVar: <Redirect to="/profile" /> });
+  }
+
+  activity = () => {
+    this.setState({ redirectVar: <Redirect to="/activity" /> });
+  }
+
+  mygroups = () => {
+    this.setState({ redirectVar: <Redirect to="/mygroups" /> });
+  }
 
   render() {
-    // if (!cookie.load("cookie")) {
-    //   this.setState({ redirectVar: <Redirect to="/" /> });
-    // }
+    console.log("Dash ",localStorage.getItem("email"));
+    if (!(localStorage.getItem("email"))) {
+      this.setState({ redirectVar: <Redirect to="/" /> });
+    }
 
     return (
-      <div> Dashboard</div>
-      // <div>
-      //   {this.state.redirectVar}
-      //   <Navbar bg="light" variant="light">
-      //     <Nav className="container-fluid">
-      //       <img
-      //         alt=""
-      //         src={head}
-      //         width="40"
-      //         height="40"
-      //         className="d-inline-block align-top"
-      //       />
-      //       <div class="split">Splitwise</div>
-      //       <div className="dropdown">
-      //         <Dropdown>
-      //           <Dropdown.Toggle variant="outline-info" id="dropdown-basic">
-      //             Manage Groups
-      //           </Dropdown.Toggle>
-      //           <Dropdown.Menu>
-      //             <Dropdown.Item href="/creategroup">
-      //               Create Group
-      //             </Dropdown.Item>
-      //             <Dropdown.Item href="/mygroups">My Groups</Dropdown.Item>
-      //           </Dropdown.Menu>
-      //         </Dropdown>
-      //         &nbsp;
-      //         <Dropdown>
-      //           <Dropdown.Toggle variant="success" id="dropdown-basic">
-      //             Hi, {this.state.user}
-      //           </Dropdown.Toggle>
+      
+      <div>
+        {this.state.redirectVar}
+        <Navbar bg="light" variant="light">
+          <Nav className="container-fluid">
+            <img
+              alt=""
+              src={head}
+              width="40"
+              height="40"
+              className="d-inline-block align-top"
+            />
+            <div className="split">Splitwise</div>
+            <div className="dropdown">
+              <Dropdown>
+                <Dropdown.Toggle variant="outline-info" id="dropdown-basic">
+                  Manage Groups
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={this.createGroup}>
+                    Create Group
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={this.mygroups}>My Groups</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              &nbsp;
+              <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                  Hi, {this.state.user}
+                </Dropdown.Toggle>
 
-      //           <Dropdown.Menu>
-      //             <Dropdown.Item onClick={this.landingPage}>
-      //               Logout
-      //             </Dropdown.Item>
-      //             <Dropdown.Item href="/activity">Activity</Dropdown.Item>
-      //             <Dropdown.Item href="/profile">Profile</Dropdown.Item>
-      //           </Dropdown.Menu>
-      //         </Dropdown>
-      //       </div>
-      //     </Nav>
-      //   </Navbar>
-      //   <div className="dashboard">
-      //     <CenterPage page={"Dashboard"} email={cookie.load("cookie")} />
-      //   </div>
-      // </div>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={this.landingPage}>
+                    Logout
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={this.activity}>Activity</Dropdown.Item>
+                  <Dropdown.Item onClick={this.profile}>Profile</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          </Nav>
+        </Navbar>
+        <div className="dashboard">
+        <Centerpage page={"Dashboard"}/>
+        </div>
+      </div>
     );
   }
 }
