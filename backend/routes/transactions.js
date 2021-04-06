@@ -107,6 +107,7 @@ router.post("/settleup", (req, res) => {
     }
   })    
   });
+  
 router.post("/modal", (req, res) => {
     Users.findOne({email:req.body.modalEmail}, (err, user) => {
         if(user){

@@ -268,7 +268,8 @@ class Group extends Component {
     };
     axios.post(`${uri}/transactions/settleup`, data).then((response) => {
       if (response.data === "Balance settled") {
-        window.location.reload(false);
+        // window.location.reload(false);
+        this.setState({updateBalance:true});
       }
     });
   };

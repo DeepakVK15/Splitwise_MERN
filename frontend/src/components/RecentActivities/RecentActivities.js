@@ -5,6 +5,7 @@ import "./activities.css";
 import Head from "../Navbar/Navbar";
 import { Redirect } from "react-router-dom";
 import { uri } from "../../uri";
+import ReactPaginate from "react-paginate";
 
 class RecentActivities extends Component {
   state = {
@@ -13,6 +14,8 @@ class RecentActivities extends Component {
     group: "",
     order: "asc",
     redirectVar: "",
+    activitiesPerPage:2,
+    pageNumber:0
   };
 
   async componentDidMount() {
@@ -51,7 +54,15 @@ class RecentActivities extends Component {
     });
   };
 
+  pageSizeChange = (e) => {
+    this.setState({
+      activitiesPerPage:e.target.value
+    });
+    this.setState({pageNumber:0});
+  };
+
   render() {
+    
     if (!cookie.load("cookie")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
     }
@@ -65,7 +76,6 @@ class RecentActivities extends Component {
       );
     }
     
-
     if (this.state.order === "desc") {
       this.state.activities.sort(function (a, b) {
         if (a.date > b.date) return 1;
@@ -168,7 +178,11 @@ class RecentActivities extends Component {
         }
       }
     }
-
+    let pagesVisited = this.state.pageNumber * this.state.activitiesPerPage;
+    console.log("Page Visited", pagesVisited);
+    const changePage = ({ selected }) => {
+      this.setState({pageNumber:selected});
+    };
     return (
       <div>
         {this.state.redirectVar}
@@ -212,10 +226,37 @@ class RecentActivities extends Component {
               Recent last
             </option>
           </select>
+          &nbsp; &nbsp;
+          <select
+            onChange={this.pageSizeChange}
+            value={this.state.activitiesPerPage}
+            id="activitiesPerPage"
+            key="activitiesPerPage"
+          >
+            <option value="2" defaultValue key="2">
+             2
+            </option>
+            <option value="5" key="5">
+              5
+            </option>
+            <option value="10" key="10">
+              10
+            </option>
+          </select>
+          <br/>
           <br />
-          <br />
-          
-          {activities}
+          {activities.slice(pagesVisited, pagesVisited+this.state.activitiesPerPage)}
+          <ReactPaginate
+          previousLabel={"Previous"}
+          nextLabel={"Next"}
+          pageCount={Math.ceil(this.state.activities.length/this.state.activitiesPerPage)}
+          onPageChange={changePage}
+          containerClassName={"paginationBttns"}
+          previousLinkClassName={"previousBttn"}
+          nextLinkClassName={"nextBttn"}
+          disabledClassName={"paginationDisabled"}
+          activeClassName={"paginationActive"}
+        />
         </div>
       </div>
     );
