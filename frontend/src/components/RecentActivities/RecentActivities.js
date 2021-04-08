@@ -15,7 +15,7 @@ class RecentActivities extends Component {
     order: "asc",
     redirectVar: "",
     activitiesPerPage:2,
-    pageNumber:0
+    pageNumber:0,
   };
 
   async componentDidMount() {
@@ -56,7 +56,7 @@ class RecentActivities extends Component {
 
   pageSizeChange = (e) => {
     this.setState({
-      activitiesPerPage:e.target.value
+      activitiesPerPage:Number(e.target.value)
     });
     this.setState({pageNumber:0});
   };
@@ -91,8 +91,8 @@ class RecentActivities extends Component {
     }
 
     for (let i = 0; i < this.state.activities.length; i++) {
-      if (this.state.activities[i].user === localStorage.getItem("email")) {
-        this.state.activities[i].name = "You";
+      if (this.state.activities[i].user.email === localStorage.getItem("email")) {
+        this.state.activities[i].user.name = "You";
       }
       if (this.state.group === "") {
         if (this.state.activities[i].operation === "added") {
@@ -118,12 +118,26 @@ class RecentActivities extends Component {
               <br />
             </div>
           );
-        } else if (this.state.activities[i].operation === "settled up") {
+        }  else if (
+          this.state.activities[i].operation === "settled up"
+        ) {
           activities.push(
             <div className="activity">
-              {this.state.activities[i].user.name} settled the balance in
-              &nbsp;"
+              {this.state.activities[i].user.name} updated the group &nbsp; "
               {this.state.activities[i].groupname}"
+              <div className="date">
+                {this.state.activities[i].date.split("T")[0]}
+              </div>
+              <br />
+            </div>
+          );
+        }
+        else if (this.state.activities[i].operation === "note") {
+          activities.push(
+            <div className="activity">
+              {this.state.activities[i].user.name} commented on
+              &nbsp;"
+              {this.state.activities[i].groupname}": "{this.state.activities[i].description}"
               <div className="date">
                 {this.state.activities[i].date.split("T")[0]}
               </div>
@@ -162,7 +176,7 @@ class RecentActivities extends Component {
             </div>
           );
         } else if (
-          this.state.activities[i].operation === "updated" &&
+          this.state.activities[i].operation === "settled up" &&
           this.state.activities[i].groupname === this.state.group
         ) {
           activities.push(
@@ -176,13 +190,39 @@ class RecentActivities extends Component {
             </div>
           );
         }
+        else if (
+          this.state.activities[i].operation === "note" &&
+          this.state.activities[i].groupname === this.state.group
+        ) {
+          console.log("Logging note");
+          activities.push(
+            <div className="activity">
+              {this.state.activities[i].user.name} commented on &nbsp;
+              "{this.state.activities[i].groupname}": "{this.state.activities[i].description}"
+              <div className="date">
+                {this.state.activities[i].date.split("T")[0]}
+              </div>
+              <br />
+            </div>
+          );
+        }
       }
     }
-    let pagesVisited = this.state.pageNumber * this.state.activitiesPerPage;
-    console.log("Page Visited", pagesVisited);
-    const changePage = ({ selected }) => {
+
+    let changePage = ({ selected }) => {
       this.setState({pageNumber:selected});
     };
+    const pageCount = Math.ceil(activities.length / this.state.activitiesPerPage);
+    let pagesVisited =  this.state.pageNumber * this.state.activitiesPerPage;
+    console.log("Page Visited ",pagesVisited);
+    console.log("Page Number ",this.state.pageNumber);
+    console.log("Actvities per page ",this.state.activitiesPerPage);
+    const displayActivities = activities
+    .slice(pagesVisited, pagesVisited + this.state.activitiesPerPage)
+    .map((activity) => {
+        return activity;
+    })
+
     return (
       <div>
         {this.state.redirectVar}
@@ -233,7 +273,10 @@ class RecentActivities extends Component {
             id="activitiesPerPage"
             key="activitiesPerPage"
           >
-            <option value="2" defaultValue key="2">
+          <option value="initial" defaultValue key="initial">
+              Page Size
+            </option>
+            <option value="2" key="2">
              2
             </option>
             <option value="5" key="5">
@@ -245,11 +288,11 @@ class RecentActivities extends Component {
           </select>
           <br/>
           <br />
-          {activities.slice(pagesVisited, pagesVisited+this.state.activitiesPerPage)}
+          {displayActivities}
           <ReactPaginate
           previousLabel={"Previous"}
           nextLabel={"Next"}
-          pageCount={Math.ceil(this.state.activities.length/this.state.activitiesPerPage)}
+          pageCount={pageCount}
           onPageChange={changePage}
           containerClassName={"paginationBttns"}
           previousLinkClassName={"previousBttn"}

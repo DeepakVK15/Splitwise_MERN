@@ -302,6 +302,24 @@ router.post("/note", (req, res) => {
     note: req.body.comment,
   });
   note.save();
+  
+    Expense.findOne({_id:req.body.expense}, (err,expense) => {
+      if(expense){
+        console.log("Expense: ", expense);
+        const activity = new Activity({
+          user:req.body.user,
+          operation:"note",
+          groupname:expense.groupname,
+          description:req.body.comment
+        });
+        activity.save((error, data) => {
+          if (error) {
+            console.log("Erroring", error);
+          } else {
+            console.log("data ",data);
+          }
+        });      }
+    })
 });
 
 router.get("/note", (req, res) => {
