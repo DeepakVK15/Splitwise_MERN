@@ -35,7 +35,8 @@ class Group extends Component {
       note: "",
       comments: [],
       expenseOpened:"",
-      updateNotes:false
+      updateBalance:false,
+      updateNotes:""
     };
     this.descriptionHandler = this.descriptionHandler.bind(this);
     this.amountHandler = this.amountHandler.bind(this);
@@ -114,34 +115,34 @@ class Group extends Component {
       })
       .then((response) => {
         this.setState({
-          groupBalance: this.state.groupBalance.concat(response.data),
+          groupBalance: response.data
         });
       });
-    await axios
-      .get(`${uri}/group/borrowed`, {
-        params: { groupname: this.state.name, members: this.state.members },
-      })
-      .then((response) => {
-        this.setState({
-          groupBorrowed: this.state.groupBorrowed.concat(response.data),
-        });
-        this.state.groupBorrowed.forEach((obj) => {
-          for (let i = 0; i < this.state.groupBalance.length; i++) {
-            if (obj.email === this.state.groupBalance[i].email) {
-              let groupBalance = [...this.state.groupBalance];
-              groupBalance[i].balance =
-                this.state.groupBalance[i].balance - obj.balance;
-              groupBalance[i].balance = groupBalance[i].balance.toFixed(3);
-              this.setState({ groupBalance });
-            }
-          }
-        });
-      });
+    // await axios
+    //   .get(`${uri}/group/borrowed`, {
+    //     params: { groupname: this.state.name, members: this.state.members },
+    //   })
+    //   .then((response) => {
+    //     this.setState({
+    //       groupBorrowed: this.state.groupBorrowed.concat(response.data),
+    //     });
+    //     this.state.groupBorrowed.forEach((obj) => {
+    //       for (let i = 0; i < this.state.groupBalance.length; i++) {
+    //         if (obj.email === this.state.groupBalance[i].email) {
+    //           let groupBalance = [...this.state.groupBalance];
+    //           groupBalance[i].balance =
+    //             this.state.groupBalance[i].balance - obj.balance;
+    //           groupBalance[i].balance = groupBalance[i].balance.toFixed(3);
+    //           this.setState({ groupBalance });
+    //         }
+    //       }
+    //     });
+    //   });
   }
 
-  componentDidUpdate() {
+  async componentDidUpdate() {
     if (this.state.update) {
-      axios
+     await axios
         .get(`${uri}/group/expenses`, {
           params: { name: this.state.name },
         })
@@ -151,11 +152,36 @@ class Group extends Component {
             expenses: response.data,
           });
         });
-        
-        this.setState.apply({update:false});
+      }
+        if (this.state.updateBalance) {
+       await  axios
+      .get(`${uri}/group/lended`, {
+        params: { groupname: this.state.name, members: this.state.members },
+      })
+      .then((response) => {
+        this.setState({
+          groupBalance: response.data
+        });
+      });
+        this.setState({updateBalance:false});
     }
 
+    if(this.state.updateNotes.length!==0){
+      axios
+      .get(`${uri}/group/note`, {
+        params: { expense: this.state.updateNotes},
+      })
+      .then((response) => {
+        this.setState({
+          comments: response.data,
+        });
+        this.setState({updateNotes:""});
+    });
+  }
+      }
+
     // if(this.state.updateNotes){
+    //   console.log("Looping..");
     //   axios.get(`${uri}/group/note`, {
     //     params: { expense: this.state.expenseOpened },
     //   }).then((response) => {
@@ -165,10 +191,11 @@ class Group extends Component {
     //     console.log("Comments ",this.state.comments);
     //     localStorage.setItem("expenseid", this.state.expenseOpened);
     // } )
-    // this.setState({ note: "" });
-    // this.setState({updateNotes:false});
+    // // this.setState({ note: "" });
+    // // this.setState({updateNotes:false});
     // }
-  }
+    // this.state.updateNotes = false;
+  // }
 
   openModal = () => this.setState({ isOpen: true });
   updateOpen = () => this.setState({ updateOpen: true });
@@ -183,8 +210,9 @@ class Group extends Component {
       email: localStorage.getItem("email"),
       members: this.state.members,
     };
-    this.setState({ update: true });
     axios.post(`${uri}/group/addExpense`, data);
+    this.setState({ update: true });
+    this.setState({updateBalance:true})
     this.setState({ isOpen: false });
     // window.location.reload(false);
   };
@@ -240,7 +268,8 @@ class Group extends Component {
     };
     axios.post(`${uri}/transactions/settleup`, data).then((response) => {
       if (response.data === "Balance settled") {
-        window.location.reload(false);
+        // window.location.reload(false);
+        this.setState({updateBalance:true});
       }
     });
   };
@@ -271,7 +300,7 @@ class Group extends Component {
   };
 
   openNote = (expense) => {
-    this.setState({expenseOpened:expense._id});
+    // this.setState({updateNote:expense._id});
     axios
       .get(`${uri}/group/note`, {
         params: { expense: expense._id },
@@ -295,9 +324,10 @@ class Group extends Component {
         comment: this.state.note,
       };
       axios.post(`${uri}/group/note`, data);
-      localStorage.removeItem("expenseid");
+      this.setState({updateNotes: localStorage.getItem("expenseid")});
+      // localStorage.removeItem("expenseid");
     }
-    this.setState({updateNotes:true});
+    // this.setState({comments:[]});
     // this.setState({ showForm: false });
   };
 
@@ -305,9 +335,10 @@ class Group extends Component {
     const data = {
       note: comment._id,
     };
+    this.setState({updateNotes:comment.expense});
     axios.post(`${uri}/group/deleteNote`, data);
-  };
-
+  }
+  
   render() {
     let errMsg = null;
     if (!cookie.load("cookie")) {
@@ -369,7 +400,6 @@ class Group extends Component {
           );
         }
         if (this.state.groupBalance[i].balance < 0) {
-          console.log("Negative values ", this.state.groupBalance[i].balance);
           let temp = Math.abs(this.state.groupBalance[i].balance);
           balance.push(
             <h6>
@@ -386,19 +416,33 @@ class Group extends Component {
 
     let comments = [];
     for (let i = 0; i < this.state.comments.length; i++) {
+      if(this.state.comments[i].user.email === localStorage.getItem("email")){
       comments.push(
-        <div>
-          <h6>
-            {this.state.comments[i].note}{" "}
-            <Button
-              variant="link"
-              onClick={this.removeComment(this.state.comments[i])}
-            >
-              x
-            </Button>
-          </h6>
+        <div className="noteDesc">
+           <ol> {this.state.comments[i].note} {" "} <Button
+            variant="link"
+            onClick={() => {if (window.confirm('Are you sure you want to delete this comment?')) this.removeComment(this.state.comments[i])}}
+          >
+            x
+          </Button> <br/>
+            <div className="noteUser">{this.state.comments[i].user.name}
+            </div>
+            <br/>
+            </ol>
         </div>
       );
+      }
+      else{
+        comments.push(
+          <div className="noteDesc">
+             <ol> {this.state.comments[i].note}
+              <div className="noteUser">{this.state.comments[i].user.name}
+              </div>
+              <br/>
+              </ol>
+          </div>
+        )
+      }
     }
 
     return (

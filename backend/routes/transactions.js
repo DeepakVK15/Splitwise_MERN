@@ -28,13 +28,6 @@ Users.findOne({email:req.query.email}, (err,usr) => {
       if (error) {
         console.log("Error", error);
       } else {
-        // console.log("Transactions ",transactions);
-        // for (let i = 0; i < transactions.length; i++) {
-        //   Users.findOne({ email: transactions[i].borrowerid.email }, (err, user) => {
-        //     if (user) transactions[i].borrowerid.email = user.name;
-        //   });
-        // }
-        // console.log("transactions ",transactions);
         res.send(transactions);
       }
     });
@@ -114,6 +107,7 @@ router.post("/settleup", (req, res) => {
     }
   })    
   });
+  
 router.post("/modal", (req, res) => {
     Users.findOne({email:req.body.modalEmail}, (err, user) => {
         if(user){

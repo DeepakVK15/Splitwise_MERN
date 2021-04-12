@@ -6,6 +6,9 @@ import axios from "axios";
 import { Redirect } from "react-router";
 import Head from "../Navbar/Navbar";
 import {uri} from '../../uri';
+import PropTypes from "prop-types";
+import { createGroup } from "../../actions/groupAction";
+import { connect } from "react-redux";
 
 class CreateGroup extends Component {
   constructor(props) {
@@ -22,7 +25,7 @@ class CreateGroup extends Component {
     this.groupnameHandler = this.groupnameHandler.bind(this);
     this.membersHandler = this.membersHandler.bind(this);
     this.imageHandler = this.imageHandler.bind(this);
-    this.createGroup = this.createGroup.bind(this);
+    this.createGrp = this.createGrp.bind(this);
   }
 
   groupnameHandler = (e) => {
@@ -118,7 +121,7 @@ class CreateGroup extends Component {
     });
   }
 
-  createGroup() {
+  createGrp() {
     if (this.state.groupname === "") {
       this.setState({ errCode: "Group should have a name." });
     } else if (this.state.members.length < 2) {
@@ -134,24 +137,31 @@ class CreateGroup extends Component {
         createdBy_name:localStorage.getItem("name")
       };
 
-      axios.defaults.withCredentials = true;
-      axios
-        .post(`${uri}/group/creategroup`, data)
-        .then((response) => {
-          // eslint-disable-next-line react/no-direct-mutation-state
-          // this.setState({errCode :response.status})
-          if (response.data.message) {
-            this.setState({ errCode: response.data.message });
-            console.log("response mesg",response.data.message);
-          }
-        });
+      // axios.defaults.withCredentials = true;
+      // axios
+      //   .post(`${uri}/group/creategroup`, data)
+      //   .then((response) => {
+      //     // eslint-disable-next-line react/no-direct-mutation-state
+      //     // this.setState({errCode :response.status})
+      //     if (response.data.message) {
+      //       this.setState({ errCode: response.data.message });
+      //       console.log("response mesg",response.data.message);
+      //     }
+      //   });
+      this.props.createGroup(data);
     }
   }
 
   render() {
     let errMsg = null;
+    if(this.props.activities && this.props.activities.message === "Group with the same name already exists."){
+      console.log("Err message set using props");
+      errMsg = (<div class="alert alert-danger" role="alert">
+      {this.props.activities.message}
+    </div>)
+    }
+    
     if (
-      this.state.errCode === "Group with the same name already exists." ||
       this.state.errCode === "Group should have more than two members." ||
       this.state.errCode === "Group should have a name."
     ) {
@@ -161,9 +171,10 @@ class CreateGroup extends Component {
         </div>
       );
     }
-    console.log("Insterd ",this.state.errCode);
-    if (this.state.errCode === "inserted users") {
+    if (this.props.activities && this.props.activities.message === "created group") {
       this.setState({ redirectVar: <Redirect to="/dashboard" /> });
+      console.log("Insterd ",this.props.activities.message);
+      this.props.activities.message = "";
     }
     return (
       <div>
@@ -214,7 +225,7 @@ class CreateGroup extends Component {
             <button
               type="button"
               class="createGroup"
-              onClick={this.createGroup}
+              onClick={this.createGrp}
             >
               Save
             </button>
@@ -225,4 +236,17 @@ class CreateGroup extends Component {
   }
 }
 
-export default CreateGroup;
+CreateGroup.propTypes = {
+  createGroup: PropTypes.func.isRequired,
+  activities: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => {
+  return {
+    activities: state.group.activities
+  };
+};
+
+export default connect(mapStateToProps, { createGroup })(CreateGroup);
+
+// export default CreateGroup;

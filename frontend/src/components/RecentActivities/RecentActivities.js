@@ -5,6 +5,7 @@ import "./activities.css";
 import Head from "../Navbar/Navbar";
 import { Redirect } from "react-router-dom";
 import { uri } from "../../uri";
+import ReactPaginate from "react-paginate";
 
 class RecentActivities extends Component {
   state = {
@@ -13,6 +14,8 @@ class RecentActivities extends Component {
     group: "",
     order: "asc",
     redirectVar: "",
+    activitiesPerPage:2,
+    pageNumber:0,
   };
 
   async componentDidMount() {
@@ -51,7 +54,15 @@ class RecentActivities extends Component {
     });
   };
 
+  pageSizeChange = (e) => {
+    this.setState({
+      activitiesPerPage:Number(e.target.value)
+    });
+    this.setState({pageNumber:0});
+  };
+
   render() {
+    
     if (!cookie.load("cookie")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
     }
@@ -65,7 +76,6 @@ class RecentActivities extends Component {
       );
     }
     
-
     if (this.state.order === "desc") {
       this.state.activities.sort(function (a, b) {
         if (a.date > b.date) return 1;
@@ -81,8 +91,8 @@ class RecentActivities extends Component {
     }
 
     for (let i = 0; i < this.state.activities.length; i++) {
-      if (this.state.activities[i].user === localStorage.getItem("email")) {
-        this.state.activities[i].name = "You";
+      if (this.state.activities[i].user.email === localStorage.getItem("email")) {
+        this.state.activities[i].user.name = "You";
       }
       if (this.state.group === "") {
         if (this.state.activities[i].operation === "added") {
@@ -108,12 +118,26 @@ class RecentActivities extends Component {
               <br />
             </div>
           );
-        } else if (this.state.activities[i].operation === "settled up") {
+        }  else if (
+          this.state.activities[i].operation === "settled up"
+        ) {
           activities.push(
             <div className="activity">
-              {this.state.activities[i].user.name} settled the balance in
-              &nbsp;"
+              {this.state.activities[i].user.name} updated the group &nbsp; "
               {this.state.activities[i].groupname}"
+              <div className="date">
+                {this.state.activities[i].date.split("T")[0]}
+              </div>
+              <br />
+            </div>
+          );
+        }
+        else if (this.state.activities[i].operation === "note") {
+          activities.push(
+            <div className="activity">
+              {this.state.activities[i].user.name} commented on
+              &nbsp;"
+              {this.state.activities[i].groupname}": "{this.state.activities[i].description}"
               <div className="date">
                 {this.state.activities[i].date.split("T")[0]}
               </div>
@@ -152,7 +176,7 @@ class RecentActivities extends Component {
             </div>
           );
         } else if (
-          this.state.activities[i].operation === "updated" &&
+          this.state.activities[i].operation === "settled up" &&
           this.state.activities[i].groupname === this.state.group
         ) {
           activities.push(
@@ -166,8 +190,38 @@ class RecentActivities extends Component {
             </div>
           );
         }
+        else if (
+          this.state.activities[i].operation === "note" &&
+          this.state.activities[i].groupname === this.state.group
+        ) {
+          console.log("Logging note");
+          activities.push(
+            <div className="activity">
+              {this.state.activities[i].user.name} commented on &nbsp;
+              "{this.state.activities[i].groupname}": "{this.state.activities[i].description}"
+              <div className="date">
+                {this.state.activities[i].date.split("T")[0]}
+              </div>
+              <br />
+            </div>
+          );
+        }
       }
     }
+
+    let changePage = ({ selected }) => {
+      this.setState({pageNumber:selected});
+    };
+    const pageCount = Math.ceil(activities.length / this.state.activitiesPerPage);
+    let pagesVisited =  this.state.pageNumber * this.state.activitiesPerPage;
+    console.log("Page Visited ",pagesVisited);
+    console.log("Page Number ",this.state.pageNumber);
+    console.log("Actvities per page ",this.state.activitiesPerPage);
+    const displayActivities = activities
+    .slice(pagesVisited, pagesVisited + this.state.activitiesPerPage)
+    .map((activity) => {
+        return activity;
+    })
 
     return (
       <div>
@@ -212,10 +266,40 @@ class RecentActivities extends Component {
               Recent last
             </option>
           </select>
+          &nbsp; &nbsp;
+          <select
+            onChange={this.pageSizeChange}
+            value={this.state.activitiesPerPage}
+            id="activitiesPerPage"
+            key="activitiesPerPage"
+          >
+          <option value="initial" defaultValue key="initial">
+              Page Size
+            </option>
+            <option value="2" key="2">
+             2
+            </option>
+            <option value="5" key="5">
+              5
+            </option>
+            <option value="10" key="10">
+              10
+            </option>
+          </select>
+          <br/>
           <br />
-          <br />
-          
-          {activities}
+          {displayActivities}
+          <ReactPaginate
+          previousLabel={"Previous"}
+          nextLabel={"Next"}
+          pageCount={pageCount}
+          onPageChange={changePage}
+          containerClassName={"paginationBttns"}
+          previousLinkClassName={"previousBttn"}
+          nextLinkClassName={"nextBttn"}
+          disabledClassName={"paginationDisabled"}
+          activeClassName={"paginationActive"}
+        />
         </div>
       </div>
     );

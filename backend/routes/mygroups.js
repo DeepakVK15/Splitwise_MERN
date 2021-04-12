@@ -45,6 +45,7 @@ router.post("/acceptInvite", (req, res) => {
       }
     }
   );
+  res.send("Accepted");
 });
 
 router.post("/rejectInvite", (req, res) => {
@@ -58,6 +59,7 @@ router.post("/rejectInvite", (req, res) => {
       }
     }
   );
+  res.send("Rejected");
 });
 
 module.exports = router;

@@ -14,6 +14,7 @@ router.post("/createGroup", (req, res) => {
   const members = req.body.members;
   const createdBy = req.body.createdBy;
   const createdBy_name = req.body.createdBy_name;
+  let err = "";
   const newgroup = new Groups({
     name: req.body.groupname,
     image: null,
@@ -28,10 +29,12 @@ router.post("/createGroup", (req, res) => {
       console.log("IS ", error);
     }
     if (group) {
-      res.send({ message: "Group with the same name already exists." });
+      err = "Group with the same name already exists.";
+      // res.send({ message: "Group with the same name already exists." });
     } else {
       newgroup.save();
       usergroup.save();
+      err = "created group";
       members.forEach((element) => {
         const data = new Invite({
           invite_by: createdBy_name,
@@ -43,26 +46,28 @@ router.post("/createGroup", (req, res) => {
             console.log(error);
           }
         });
-      });
+      })
+          Users.findOne({ email: createdBy }, (err, usr) => {
+            const activity = new Activity({
+              user: usr._id,
+              operation: "created",
+              groupname: req.body.groupname,
+            });
+            activity.save((error, data) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(data);
+              }
+            });
+          });
+          // res.send({ message: "created group" });
+        // });
+      // });
     }
+    console.log("Creation ",err);
+    res.send({message: err});
   });
-
-  Users.findOne({ email: createdBy }, (err, usr) => {
-    const activity = new Activity({
-      user: usr._id,
-      operation: "created",
-      groupname: req.body.groupname,
-    });
-    activity.save((error, data) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(data);
-      }
-    });
-  });
-
-  res.send({ message: "inserted users" });
 });
 
 router.get("/members", (req, res) => {
@@ -159,6 +164,7 @@ router.get("/users", (req, res) => {
 router.get("/lended", (req, res) => {
   let members = req.query.members;
   let bal = 0;
+  let togive = 0;
   let r = [];
   let obj;
   for (let i = 0; i < members.length; i++) {
@@ -171,19 +177,45 @@ router.get("/lended", (req, res) => {
             console.log("Error", error);
           }
           if (transactions) {
+            // console.log("Transactions for ",member.email," ",transactions);
             transactions.forEach((transaction) => {
               bal = bal + transaction.amount;
             });
+            obj = {
+              email: member.name,
+              balance: bal,
+            };
+            r.push(obj);
+            console.log("Balance for ", member.email, " ", bal);
+            bal = 0;
           }
-          obj = {
-            email: member.name,
-            balance: bal,
-          };
-          r.push(obj);
-          if (i == members.length - 1) {
-            res.send(r);
+        }
+      );
+    });
+  }
+  for (let j = 0; j < members.length; j++) {
+    Users.findOne({ email: members[j].email }, (err, member) => {
+      Transaction.find(
+        { groupid: req.query.groupname, borrowerid: member._id },
+        (error, transacts) => {
+          if (error) {
+            console.log(error);
           }
-          bal = 0;
+          if (transacts) {
+            transacts.forEach((transact) => {
+              togive = togive + transact.amount;
+            });
+            r.forEach((obj) => {
+              if (obj.email === member.name) {
+                obj.balance = obj.balance - togive;
+              }
+            });
+            togive = 0;
+            if (j === members.length - 1) {
+              console.log("Res", r);
+              res.send(r);
+            }
+          }
         }
       );
     });
@@ -232,6 +264,24 @@ router.post("/note", (req, res) => {
     note: req.body.comment,
   });
   note.save();
+  
+    Expense.findOne({_id:req.body.expense}, (err,expense) => {
+      if(expense){
+        console.log("Expense: ", expense);
+        const activity = new Activity({
+          user:req.body.user,
+          operation:"note",
+          groupname:expense.groupname,
+          description:req.body.comment
+        });
+        activity.save((error, data) => {
+          if (error) {
+            console.log("Erroring", error);
+          } else {
+            console.log("data ",data);
+          }
+        });      }
+    })
 });
 
 router.get("/note", (req, res) => {
@@ -249,12 +299,14 @@ router.get("/note", (req, res) => {
       }
     });
 });
-// router.post("/deleteNote", (req,res) => {
-// console.log("Deleting Note");
-// Note.deleteOne({_id:req.body.note}, (err,note) => {
-// if(err)
-// console.log(err);
-// })
-// });
+
+
+router.post("/deleteNote", (req, res) => {
+  console.log("Deleting Note");
+  Note.deleteOne({ _id: req.body.note }, (err, note) => {
+    if (err) console.log(err);
+  });
+  console.log("Deleted");
+});
 
 module.exports = router;

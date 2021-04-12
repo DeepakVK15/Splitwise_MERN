@@ -4,6 +4,7 @@ import Head from "../Navbar/Navbar";
 import "./profile.css";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import validator from "validator";
 import {uri} from '../../uri';
 
 class Profile extends Component {
@@ -15,12 +16,14 @@ class Profile extends Component {
     language: "",
     currency: "",
     redirectVar: "",
+    update:false,
+    message:""
   };
 
   componentDidMount() {
     axios
-      .get(`${uri}/profile/myprofile`, {
-        params: { email: cookie.load("cookie") },
+      .get(`${uri}/profile/`, {
+        params: { email: localStorage.getItem("email") },
       })
       .then((response) => {
         // update the state with the response data
@@ -34,6 +37,26 @@ class Profile extends Component {
         }
       });
   }
+
+  // componentDidUpdate(){
+  //   if(this.state.update){
+  //     axios
+  //     .get(`${uri}/profile/`, {
+  //       params: { email: localStorage.getItem("email") },
+  //     })
+  //     .then((response) => {
+  //       // update the state with the response data
+  //       if (response.data[0] !== undefined) {
+  //         this.setState({ name: response.data[0].name });
+  //         this.setState({ email: response.data[0].email });
+  //         this.setState({ phone: response.data[0].phone });
+  //         this.setState({ timezone: response.data[0].timezone });
+  //         this.setState({ language: response.data[0].language });
+  //         this.setState({ currency: response.data[0].currency });
+  //       }
+  //     });
+  //   }
+  // }
 
   nameChange = (e) => {
     this.setState({
@@ -80,23 +103,44 @@ class Profile extends Component {
       language: this.state.language,
       currency: this.state.currency,
     };
-
+    if (!validator.isEmail(data.email)) {
+      this.setState({ message: "Enter a valid email address." });
+      console.log("validate email", data.email);
+    }
+    else if(!validator.isMobilePhone(data.phone)){
+        this.setState({message: "Enter a valid phone number."});
+    }
+    else{
     axios
-      .put(`${uri}/profile/myprofile`, data)
+      .post(`${uri}/profile/`, data)
       .then((response) => {
         if (response.data === "Profile updated successfully") {
-          this.setState({ redirectVar: <Redirect to="/dashboard" /> });
+          this.setState({update:true});
+          this.setState({message:"Profile updated successfully"})
         }
       });
+    }
   };
   render() {
+    let errMsg;
     if (!cookie.load("cookie")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
+    }
+    if(this.state.message === "Profile updated successfully"){
+      errMsg = (<div class="alert alert-success" role="alert">
+      {this.state.message}
+    </div>)
+    }
+    else if(this.state.message !== ""){
+        errMsg = (<div class="alert alert-danger" role="alert">
+        {this.state.message}
+      </div>)
     }
     return (
       <div>
         {this.state.redirectVar}
         <Head />
+        {errMsg}
         <div className="profile">
           <div>
             <form>

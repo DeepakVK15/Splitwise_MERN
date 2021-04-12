@@ -73,3 +73,11 @@
   .expenseButton {
     color: black;
   }
+
+.noteDesc {
+    font-size: 17px;
+  }
+
+.noteUser {
+    font-size: 10px;
+  }
