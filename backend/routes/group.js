@@ -14,6 +14,7 @@ router.post("/createGroup", (req, res) => {
   const members = req.body.members;
   const createdBy = req.body.createdBy;
   const createdBy_name = req.body.createdBy_name;
+  let err = "";
   const newgroup = new Groups({
     name: req.body.groupname,
     image: null,
@@ -28,10 +29,12 @@ router.post("/createGroup", (req, res) => {
       console.log("IS ", error);
     }
     if (group) {
-      res.send({ message: "Group with the same name already exists." });
+      err = "Group with the same name already exists.";
+      // res.send({ message: "Group with the same name already exists." });
     } else {
       newgroup.save();
       usergroup.save();
+      err = "created group";
       members.forEach((element) => {
         const data = new Invite({
           invite_by: createdBy_name,
@@ -43,26 +46,28 @@ router.post("/createGroup", (req, res) => {
             console.log(error);
           }
         });
-      });
+      })
+          Users.findOne({ email: createdBy }, (err, usr) => {
+            const activity = new Activity({
+              user: usr._id,
+              operation: "created",
+              groupname: req.body.groupname,
+            });
+            activity.save((error, data) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(data);
+              }
+            });
+          });
+          // res.send({ message: "created group" });
+        // });
+      // });
     }
+    console.log("Creation ",err);
+    res.send({message: err});
   });
-
-  Users.findOne({ email: createdBy }, (err, usr) => {
-    const activity = new Activity({
-      user: usr._id,
-      operation: "created",
-      groupname: req.body.groupname,
-    });
-    activity.save((error, data) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(data);
-      }
-    });
-  });
-
-  res.send({ message: "inserted users" });
 });
 
 router.get("/members", (req, res) => {
@@ -217,29 +222,6 @@ router.get("/lended", (req, res) => {
   }
 });
 
-// Transaction.find(
-//   { groupid: req.query.groupname, borrowerid: member._id },
-//   (error, transacts) => {
-//     if (error) {
-//       console.log(error);
-//     }
-//     if (transacts) {
-//       transacts.forEach((transact) => {
-//         togive = togive + transact.amount;
-//       });
-//       bal = bal - togive;
-//       obj = {
-//         email: member.name,
-//         balance: bal,
-//       };
-//       bal=0;
-//       togive = 0;
-//        r.push(obj);
-//        if (i == members.length - 1) {
-//          res.send(r);
-//        }
-//     }});
-
 router.get("/borrowed", (req, res) => {
   let members = req.query.members;
   let bal = 0;
@@ -274,26 +256,6 @@ router.get("/borrowed", (req, res) => {
     });
   }
 });
-
-// router.get("/lended", (req, res) => {
-//   console.log("Lended here");
-// const members = req.query.members;
-//   for(let i=0;i<members.length;i++){
-//   Users.findOne({email:members[i].email}, (usr,err) => {
-//     console.log("User  ",err);
-//     if(usr){
-//       Transaction.find({lenderid: usr._id, groupid:req.query.groupname }).populate('lenderif').then((transactions, error) => {
-//         if (error) {
-//           console.log("Error", error);
-//         } else {
-//           console.log("transactions ",transactions);
-//           res.send(transactions);
-//         }
-//       });
-//     }
-//   })
-// }
-//   });
 
 router.post("/note", (req, res) => {
   const note = new Note({
