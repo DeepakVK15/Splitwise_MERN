@@ -38,25 +38,7 @@ class Profile extends Component {
       });
   }
 
-  // componentDidUpdate(){
-  //   if(this.state.update){
-  //     axios
-  //     .get(`${uri}/profile/`, {
-  //       params: { email: localStorage.getItem("email") },
-  //     })
-  //     .then((response) => {
-  //       // update the state with the response data
-  //       if (response.data[0] !== undefined) {
-  //         this.setState({ name: response.data[0].name });
-  //         this.setState({ email: response.data[0].email });
-  //         this.setState({ phone: response.data[0].phone });
-  //         this.setState({ timezone: response.data[0].timezone });
-  //         this.setState({ language: response.data[0].language });
-  //         this.setState({ currency: response.data[0].currency });
-  //       }
-  //     });
-  //   }
-  // }
+
 
   nameChange = (e) => {
     this.setState({
@@ -111,6 +93,9 @@ class Profile extends Component {
         this.setState({message: "Enter a valid phone number."});
     }
     else{
+      localStorage.setItem("email",data.email);
+      localStorage.setItem("currency", data.currency);
+      localStorage.setItem("name", data.name);
     axios
       .post(`${uri}/profile/`, data)
       .then((response) => {

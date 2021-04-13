@@ -30,7 +30,6 @@ router.post("/createGroup", (req, res) => {
     }
     if (group) {
       err = "Group with the same name already exists.";
-      // res.send({ message: "Group with the same name already exists." });
     } else {
       newgroup.save();
       usergroup.save();
@@ -271,7 +270,7 @@ router.post("/note", (req, res) => {
         const activity = new Activity({
           user:req.body.user,
           operation:"note",
-          groupname:expense.groupname,
+          groupname:expense.group_name,
           description:req.body.comment
         });
         activity.save((error, data) => {

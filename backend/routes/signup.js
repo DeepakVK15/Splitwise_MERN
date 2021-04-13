@@ -1,56 +1,51 @@
-const Users = require("../models/UserModel");
 var express = require("express");
 const router = express.Router();
-const passwordHash = require("password-hash");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config");
 const { auth } = require("../passport");
+var kafka = require("../kafka/client");
 auth();
 
 router.post("/", (req, res) => {
-  var newuser = new Users({
-    name: req.body.name,
-    email: req.body.email,
-    password: passwordHash.generate(req.body.password),
-    timezone: "(GMT-08:00) Pacific Time (US & Canada)",
-    language: "English",
-    currency: "$",
-    phone: "",
-  });
-
-  Users.findOne({ email: req.body.email }, (error, user) => {
-    if (error) {
-      res.end();
-      console.log("error1");
-    }
-    if (user) {
-      res.send({ message: "Account with email id already exists." });
-    } else {
-      newuser.save((error, data) => {
-        if (error) {
-          res.end();
-          console.log(error);
-        } else {
-          res.cookie("cookie", newuser.email, {
+  kafka.make_request(
+    "signup",
+    {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      timezone: "(GMT-08:00) Pacific Time (US & Canada)",
+      language: "English",
+      currency: "$",
+      phone: "",
+    },
+    function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Logging result ", result);
+        if (result.message === "sign up success") {
+          res.cookie("cookie", req.body.email, {
             maxAge: 900000,
             httpOnly: false,
             path: "/",
           });
-          req.session.user = user;
+          // req.session.user = user;
           const payload = {
-            _id: data._id,
-            email: newuser.email,
-            name: newuser.name,
-            currency: newuser.currency,
+            _id: result._id,
+            email: req.body.email,
+            name: req.body.name,
+            currency: "$",
           };
           const token = jwt.sign(payload, secret, {
             expiresIn: 1008000,
           });
-          res.send({ message: "sign up success", token: "JWT " + token });
+          res.send({ message: result.message, token: "JWT " + token });
+        } else {
+          res.send({ message: result.message });
         }
-      });
+      }
     }
-  });
+  );
 });
 
 module.exports = router;
