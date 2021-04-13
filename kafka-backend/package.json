@@ -1,30 +1,20 @@
 {
-  "name": "backend",
+  "name": "kafka-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "kafka-backend",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "deepakvk",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "circular-json": "^0.5.9",
-    "client-sessions": "^0.8.0",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "kafka": "^0.2.3",
     "kafka-node": "^5.0.0",
-    "mongoose": "^5.12.2",
+    "mongoose": "^5.12.3",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "password-hash": "^1.2.2"
-  },
-  "devDependencies": {
-    "eslint": "^7.22.0",
-    "prettier": "^2.2.1"
   }
 }

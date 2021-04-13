@@ -80,8 +80,8 @@ class Signup extends Component {
     }
 
     if (this.props.user && this.props.user.message === "sign up success") {
-      const cookies = new Cookies();
-      cookies.set("cookie", this.state.email, { path: "/" });
+      // const cookies = new Cookies();
+      // cookies.set("cookie", this.state.email, { path: "/" });
       redirectVar = <Redirect to="/dashboard" />;
     } else if (
       this.state.message === "Enter a valid email address." ||
