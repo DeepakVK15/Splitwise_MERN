@@ -10,7 +10,7 @@ const transactions = require("./routes/transactions");
 const profile = require("./routes/profile");
 const activities = require("./routes/activities");
 
-app.use("/login", login);
+app.use("/login",  login);
 app.use("/signup", signup);
 app.use("/group", group);
 app.use("/mygroups", mygroups);

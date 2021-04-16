@@ -108,36 +108,15 @@ class Group extends Component {
           members: this.state.members.concat(response.data),
         });
       });
-    console.log("Members in FE ", this.state.members);
     await axios
-      .get(`${uri}/group/lended`, {
+      .get(`${uri}/group/balance`, {
         params: { groupname: this.state.name, members: this.state.members },
       })
       .then((response) => {
         this.setState({
-          groupBalance: response.data
+          groupBalance: this.state.members.concat(response.data)
         });
       });
-    // await axios
-    //   .get(`${uri}/group/borrowed`, {
-    //     params: { groupname: this.state.name, members: this.state.members },
-    //   })
-    //   .then((response) => {
-    //     this.setState({
-    //       groupBorrowed: this.state.groupBorrowed.concat(response.data),
-    //     });
-    //     this.state.groupBorrowed.forEach((obj) => {
-    //       for (let i = 0; i < this.state.groupBalance.length; i++) {
-    //         if (obj.email === this.state.groupBalance[i].email) {
-    //           let groupBalance = [...this.state.groupBalance];
-    //           groupBalance[i].balance =
-    //             this.state.groupBalance[i].balance - obj.balance;
-    //           groupBalance[i].balance = groupBalance[i].balance.toFixed(3);
-    //           this.setState({ groupBalance });
-    //         }
-    //       }
-    //     });
-    //   });
   }
 
   async componentDidUpdate() {
@@ -152,10 +131,11 @@ class Group extends Component {
             expenses: response.data,
           });
         });
+        this.setState({update:false});
       }
         if (this.state.updateBalance) {
        await  axios
-      .get(`${uri}/group/lended`, {
+      .get(`${uri}/group/balance`, {
         params: { groupname: this.state.name, members: this.state.members },
       })
       .then((response) => {
@@ -179,23 +159,6 @@ class Group extends Component {
     });
   }
       }
-
-    // if(this.state.updateNotes){
-    //   console.log("Looping..");
-    //   axios.get(`${uri}/group/note`, {
-    //     params: { expense: this.state.expenseOpened },
-    //   }).then((response) => {
-    //     this.setState({
-    //       comments: response.data
-    //     });
-    //     console.log("Comments ",this.state.comments);
-    //     localStorage.setItem("expenseid", this.state.expenseOpened);
-    // } )
-    // // this.setState({ note: "" });
-    // // this.setState({updateNotes:false});
-    // }
-    // this.state.updateNotes = false;
-  // }
 
   openModal = () => this.setState({ isOpen: true });
   updateOpen = () => this.setState({ updateOpen: true });
@@ -278,6 +241,7 @@ class Group extends Component {
     const data = {
       name: localStorage.getItem("email"),
       groupname: this.state.name,
+      id:localStorage.getItem("_id")
     };
     axios.post(`${uri}/group/leaveGroup`, data).then((response) => {
       this.setState({
@@ -341,11 +305,11 @@ class Group extends Component {
   
   render() {
     let errMsg = null;
-    if (!cookie.load("cookie")) {
+    if (!localStorage.getItem("email")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
     }
     if (this.state.message === "Exited from group") {
-      this.setState({ redirectVar: <Redirect to="/dashboard" /> });
+      this.setState({ redirectVar: <Redirect to="/mygroups" /> });
     }
     if (
       this.state.message ===
@@ -508,7 +472,7 @@ class Group extends Component {
                 id="paidmember"
               >
                 {this.state.members.map((member) => {
-                  return <option value={member.email}> {member.email} </option>;
+                  return <option value={member.email}> {member.email.split("@")[0]} </option>;
                 })}
               </select>
               <br />

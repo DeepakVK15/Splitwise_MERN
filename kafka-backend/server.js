@@ -20,13 +20,17 @@ mongoose.connect(mongoDB, options, (err, res) => {
 
 const signup = require("./services/signup");
 const login = require("./services/login");
-
+const group = require("./services/group");
+const activity = require("./services/activity");
+const mygroups = require("./services/mygroups");
+const transaction = require("./services/transaction");
+const profile = require("./services/profile");
 
 //Handle topic request
 const handleTopicRequest = (topic_name, fname) => {
   var consumer = connection.getConsumer(topic_name);
   var producer = connection.getProducer();
-  console.log("Kafka Server is running ");
+  // console.log("Kafka Server is running ");
   consumer.on("message", function (message) {
     console.log("Message received for " + topic_name);
     var data = JSON.parse(message.value);
@@ -44,10 +48,10 @@ const response = (data, res, err, producer) => {
       messages: JSON.stringify({
         correlationId: data.correlationId,
         data: res,
-        err: err
+        err: err,
       }),
-      partition: 0
-    }
+      partition: 0,
+    },
   ];
   producer.send(payloads, function (err, data) {
     if (err) {
@@ -57,8 +61,12 @@ const response = (data, res, err, producer) => {
     }
   });
   return;
-}
+};
 
 handleTopicRequest("signup", signup);
 handleTopicRequest("login", login);
-
+handleTopicRequest("group", group);
+handleTopicRequest("activity", activity);
+handleTopicRequest("mygroups", mygroups);
+handleTopicRequest("transaction", transaction);
+handleTopicRequest("profile", profile);

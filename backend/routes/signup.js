@@ -24,12 +24,6 @@ router.post("/", (req, res) => {
       } else {
         console.log("Logging result ", result);
         if (result.message === "sign up success") {
-          res.cookie("cookie", req.body.email, {
-            maxAge: 900000,
-            httpOnly: false,
-            path: "/",
-          });
-          // req.session.user = user;
           const payload = {
             _id: result._id,
             email: req.body.email,
@@ -39,6 +33,13 @@ router.post("/", (req, res) => {
           const token = jwt.sign(payload, secret, {
             expiresIn: 1008000,
           });
+          res.cookie("cookie", req.body.email, {
+            maxAge: 900000,
+            httpOnly: false,
+            path: "/",
+          });
+          // req.session.user = user;
+         
           res.send({ message: result.message, token: "JWT " + token });
         } else {
           res.send({ message: result.message });

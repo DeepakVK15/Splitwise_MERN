@@ -123,7 +123,7 @@ class RecentActivities extends Component {
         ) {
           activities.push(
             <div className="activity">
-              {this.state.activities[i].user.name} updated the group &nbsp; "
+              {this.state.activities[i].user.name} settled balance in &nbsp; "
               {this.state.activities[i].groupname}"
               <div className="date">
                 {this.state.activities[i].date.split("T")[0]}
@@ -181,7 +181,7 @@ class RecentActivities extends Component {
         ) {
           activities.push(
             <div className="activity">
-              {this.state.activities[i].user.name} updated the group &nbsp; "
+              {this.state.activities[i].user.name} settled balance in &nbsp; "
               {this.state.activities[i].groupname}"
               <div className="date">
                 {this.state.activities[i].date.split("T")[0]}
