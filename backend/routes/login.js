@@ -1,12 +1,10 @@
 const Users = require("../models/UserModel");
 var express = require("express");
 const router = express.Router();
-const passwordHash = require("password-hash");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config");
 const { auth } = require("../passport");
 var kafka = require("../kafka/client");
-
 auth();
 
 router.post("/", (req, res) => {
@@ -57,7 +55,7 @@ router.post("/", (req, res) => {
               currency: result.currency,
             };
             const token = jwt.sign(payload, secret, {
-              expiresIn: 1008000,
+              expiresIn: 1008000
             });
             res.cookie("cookie", result.email, {
               maxAge: 900000,

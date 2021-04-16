@@ -16,7 +16,7 @@ class Dashboard extends Component {
     this.state = {
       redirectVar: null,
       email: localStorage.getItem("email"),
-      user: localStorage.getItem("name")
+      user: localStorage.getItem("name"),
     };
     this.landingPage = this.landingPage.bind(this);
     this.createGroup = this.createGroup.bind(this);
@@ -34,28 +34,26 @@ class Dashboard extends Component {
 
   createGroup = () => {
     this.setState({ redirectVar: <Redirect to="/creategroup" /> });
-  }
+  };
 
   profile = () => {
     this.setState({ redirectVar: <Redirect to="/profile" /> });
-  }
+  };
 
   activity = () => {
     this.setState({ redirectVar: <Redirect to="/activity" /> });
-  }
+  };
 
   mygroups = () => {
     this.setState({ redirectVar: <Redirect to="/mygroups" /> });
-  }
+  };
 
   render() {
-    console.log("Dash ",localStorage.getItem("email"));
-    if (!(localStorage.getItem("email"))) {
+    if (!localStorage.getItem("email")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
     }
 
     return (
-      
       <div>
         {this.state.redirectVar}
         <Navbar bg="light" variant="light">
@@ -67,7 +65,7 @@ class Dashboard extends Component {
               height="40"
               className="d-inline-block align-top"
             />
-            <div className="split">Splitwise</div>
+            <div className="wise">Splitwise</div>
             <div className="dropdown">
               <Dropdown>
                 <Dropdown.Toggle variant="outline-info" id="dropdown-basic">
@@ -77,7 +75,9 @@ class Dashboard extends Component {
                   <Dropdown.Item onClick={this.createGroup}>
                     Create Group
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={this.mygroups}>My Groups</Dropdown.Item>
+                  <Dropdown.Item onClick={this.mygroups}>
+                    My Groups
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               &nbsp;
@@ -90,7 +90,9 @@ class Dashboard extends Component {
                   <Dropdown.Item onClick={this.landingPage}>
                     Logout
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={this.activity}>Activity</Dropdown.Item>
+                  <Dropdown.Item onClick={this.activity}>
+                    Activity
+                  </Dropdown.Item>
                   <Dropdown.Item onClick={this.profile}>Profile</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -98,7 +100,7 @@ class Dashboard extends Component {
           </Nav>
         </Navbar>
         <div className="dashboard">
-        <Centerpage page={"Dashboard"}/>
+          <Centerpage page={"Dashboard"} />
         </div>
       </div>
     );

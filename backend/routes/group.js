@@ -1,153 +1,61 @@
-const Groups = require("../models/GroupModel");
-const Invite = require("../models/InviteModel");
 const Users = require("../models/UserModel");
 const GroupUsers = require("../models/GroupUsersModel");
-const Expense = require("../models/ExpenseModel");
-const Transaction = require("../models/TransactionModel");
-const Activity = require("../models/RecentActivityModel");
-const Note = require("../models/NoteModel.js");
+var kafka = require("../kafka/client");
 
 var express = require("express");
 const router = express.Router();
 
 router.post("/createGroup", (req, res) => {
-  const members = req.body.members;
-  const createdBy = req.body.createdBy;
-  const createdBy_name = req.body.createdBy_name;
-  let err = "";
-  const newgroup = new Groups({
-    name: req.body.groupname,
-    image: null,
-  });
-  const usergroup = new GroupUsers({
-    email: createdBy,
-    groupname: req.body.groupname,
-  });
-
-  Groups.findOne({ name: req.body.groupname }, (error, group) => {
-    if (error) {
-      console.log("IS ", error);
+  let msg = {};
+  msg.route = "createGroup";
+  msg.members = req.body.members;
+  msg.createdBy = req.body.createdBy;
+  msg.createdBy_name = req.body.createdBy_name;
+  msg.groupname = req.body.groupname;
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      res.send({ message: result.message });
     }
-    if (group) {
-      err = "Group with the same name already exists.";
-    } else {
-      newgroup.save();
-      usergroup.save();
-      err = "created group";
-      members.forEach((element) => {
-        const data = new Invite({
-          invite_by: createdBy_name,
-          invite_to: element.email,
-          groupname: req.body.groupname,
-        });
-        data.save((error, data) => {
-          if (error) {
-            console.log(error);
-          }
-        });
-      })
-          Users.findOne({ email: createdBy }, (err, usr) => {
-            const activity = new Activity({
-              user: usr._id,
-              operation: "created",
-              groupname: req.body.groupname,
-            });
-            activity.save((error, data) => {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log(data);
-              }
-            });
-          });
-          // res.send({ message: "created group" });
-        // });
-      // });
-    }
-    console.log("Creation ",err);
-    res.send({message: err});
   });
 });
 
 router.get("/members", (req, res) => {
-  GroupUsers.find({ groupname: req.query.name }, (error, members) => {
-    if (error) console.log(error);
-    else {
-      res.send(members);
+  let msg = {};
+  msg.name = req.query.name;
+  msg.route = "groupMembers";
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      res.send(result);
     }
   });
 });
 
 router.post("/addExpense", (req, res) => {
-  const paid_by = req.body.paid_by;
-  const amount = req.body.amount;
-  const members = req.body.members;
-  Users.findOne({ email: paid_by }, (err, user) => {
-    if (user) {
-      const expense = new Expense({
-        description: req.body.description,
-        paid_by: user._id,
-        group_name: req.body.groupname,
-        amount: req.body.amount,
-        date: req.body.date,
-      });
-      const individualContribution = (amount / members.length).toFixed(3);
-      console.log("Members length ", members.length);
-      for (let i = 0; i < members.length; i++) {
-        console.log("userid ", user._id);
-        console.log("paid_by ", paid_by);
-        console.log("members email ", members[i].email);
-        if (paid_by !== members[i].email) {
-          Users.findOne({ email: members[i].email }, (err, brwr) => {
-            if (brwr) {
-              console.log("Brwrid", brwr._id);
-              const transaction = new Transaction({
-                lenderid: user._id,
-                borrowerid: brwr._id,
-                groupid: req.body.groupname,
-                amount: individualContribution,
-                date: req.body.date,
-              });
-              transaction.save();
-            }
-          });
-        }
-      }
-      const activity = new Activity({
-        user: user._id,
-        operation: "added",
-        groupname: req.body.groupname,
-        amount: amount,
-        description: req.body.description,
-      });
-      expense.save((error, data) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(data);
-        }
-      });
-
-      activity.save((error, data) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(data);
-        }
-      });
-    }
+  let msg = {};
+  msg.route = "addExpense";
+  msg.members = req.body.members;
+  msg.createdBy = req.body.createdBy;
+  msg.createdBy_name = req.body.createdBy_name;
+  msg.groupname = req.body.groupname;
+  msg.date = req.body.date;
+  msg.paid_by = req.body.paid_by;
+  msg.amount = req.body.amount;
+  msg.description = req.body.description;
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) console.log("Result ", result);
   });
 });
 
 router.get("/expenses", (req, res) => {
-  Expense.find({ group_name: req.query.name })
-    .populate("paid_by")
-    .then((expenses) => {
-      if (expenses) {
-        // console.log("expenses ",expenses);
-        res.send(expenses);
-      }
-    });
+  let msg = {};
+  msg.name = req.query.name;
+  msg.route = "getExpenses";
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      console.log("result ", result);
+      res.send(result);
+    }
+  });
 });
 
 router.get("/users", (req, res) => {
@@ -160,152 +68,85 @@ router.get("/users", (req, res) => {
   });
 });
 
-router.get("/lended", (req, res) => {
-  let members = req.query.members;
-  let bal = 0;
-  let togive = 0;
-  let r = [];
-  let obj;
-  for (let i = 0; i < members.length; i++) {
-    members[i] = JSON.parse(members[i]);
-    Users.findOne({ email: members[i].email }, (err, member) => {
-      Transaction.find(
-        { groupid: req.query.groupname, lenderid: member._id },
-        (error, transactions) => {
-          if (error) {
-            console.log("Error", error);
-          }
-          if (transactions) {
-            // console.log("Transactions for ",member.email," ",transactions);
-            transactions.forEach((transaction) => {
-              bal = bal + transaction.amount;
-            });
-            obj = {
-              email: member.name,
-              balance: bal,
-            };
-            r.push(obj);
-            console.log("Balance for ", member.email, " ", bal);
-            bal = 0;
-          }
-        }
-      );
-    });
-  }
-  for (let j = 0; j < members.length; j++) {
-    Users.findOne({ email: members[j].email }, (err, member) => {
-      Transaction.find(
-        { groupid: req.query.groupname, borrowerid: member._id },
-        (error, transacts) => {
-          if (error) {
-            console.log(error);
-          }
-          if (transacts) {
-            transacts.forEach((transact) => {
-              togive = togive + transact.amount;
-            });
-            r.forEach((obj) => {
-              if (obj.email === member.name) {
-                obj.balance = obj.balance - togive;
-              }
-            });
-            togive = 0;
-            if (j === members.length - 1) {
-              console.log("Res", r);
-              res.send(r);
-            }
-          }
-        }
-      );
-    });
-  }
+router.get("/balance", (req, res) => {
+  let msg = {};
+  msg.members = req.query.members;
+  msg.groupname = req.query.groupname;
+  msg.route = "getBalance";
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      console.log("result ", result);
+      res.send(result);
+    }
+  });
 });
 
-router.get("/borrowed", (req, res) => {
-  let members = req.query.members;
-  let bal = 0;
-  let r = [];
-  let obj;
-  for (let i = 0; i < members.length; i++) {
-    members[i] = JSON.parse(members[i]);
-    Users.findOne({ email: members[i].email }, (err, member) => {
-      Transaction.find(
-        { groupid: req.query.groupname, borrowerid: member._id },
-        (error, transactions) => {
-          if (error) {
-            console.log(error);
+router.post("/leaveGroup", (req, res) => {
+  let members = [];
+  let user = {
+    email: req.body.name,
+    _id: req.body.id,
+  };
+  user = JSON.stringify(user);
+  members.push(user);
+  let msg = {};
+  msg.members = members;
+  msg.groupname = req.body.groupname;
+  msg.route = "getBalance";
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      if (result[0].balance > 0) {
+        res.send(
+          "Please clear your dues and leave the group after recieving the amount you are owed."
+        );
+      } else if (result[0].balance < 0) {
+        res.send("Please clear your dues to leave the group.");
+      } else {
+        GroupUsers.deleteOne(
+          { email: req.body.name, groupname: req.body.groupname },
+          (error, result2) => {
+            if (error) console.log(error);
+            else res.send("Exited from group");
           }
-          if (transactions) {
-            transactions.forEach((transaction) => {
-              bal = bal + transaction.amount;
-            });
-          }
-          obj = {
-            email: member.name,
-            balance: bal,
-          };
-          r.push(obj);
-          if (i == members.length - 1) {
-            // console.log("Borrowed ",r);
-            res.send(r);
-          }
-          bal = 0;
-        }
-      );
-    });
-  }
+        );
+      }
+    }
+  });
 });
 
 router.post("/note", (req, res) => {
-  const note = new Note({
-    expense: req.body.expense,
-    user: req.body.user,
-    note: req.body.comment,
-  });
-  note.save();
-  
-    Expense.findOne({_id:req.body.expense}, (err,expense) => {
-      if(expense){
-        console.log("Expense: ", expense);
-        const activity = new Activity({
-          user:req.body.user,
-          operation:"note",
-          groupname:expense.group_name,
-          description:req.body.comment
-        });
-        activity.save((error, data) => {
-          if (error) {
-            console.log("Erroring", error);
-          } else {
-            console.log("data ",data);
-          }
-        });      }
-    })
-});
-
-router.get("/note", (req, res) => {
-  console.log("Noting...");
-  console.log("Expense ", req.query.expense);
-  Note.find({ expense: req.query.expense })
-    .populate("user")
-    .then((notes, err) => {
-      if (err) {
-        console.log("Err ", err);
-      }
-      if (notes) {
-        console.log("Notes ", notes);
-        res.send(notes);
+  let msg = {};
+  msg.route = "addNote";
+  (msg.expense = req.body.expense),
+    (msg.user = req.body.user),
+    (msg.comment = req.body.comment),
+    kafka.make_request("group", msg, function (err, result) {
+      if (result) {
+        console.log("result ", result);
+        res.send(result);
       }
     });
 });
 
+router.get("/note", (req, res) => {
+  let msg = {};
+  msg.route = "getNotes";
+  msg.expense = req.query.expense;
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) {
+      console.log("Notes ", result);
+      res.send(result);
+    }
+  });
+});
 
 router.post("/deleteNote", (req, res) => {
-  console.log("Deleting Note");
-  Note.deleteOne({ _id: req.body.note }, (err, note) => {
-    if (err) console.log(err);
+  let msg = {};
+  msg.route = "deleteNote";
+  msg.note = req.body.note;
+  kafka.make_request("group", msg, function (err, result) {
+    if (result) console.log("Result ", result);
   });
-  console.log("Deleted");
 });
 
 module.exports = router;

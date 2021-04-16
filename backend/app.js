@@ -5,7 +5,7 @@ var app = express();
 var cors = require("cors");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
-const { mongoDB } = require("./config");
+const { mongoDB, frontendURI } = require("./config");
 const mongoose = require("mongoose");
 var options = {
   useNewUrlParser: true,
@@ -17,7 +17,7 @@ var options = {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: frontendURI, credentials: true }));
 
 //use express session to maintain session data
 app.use(
@@ -32,7 +32,7 @@ app.use(
 
 //Allow Access Control
 app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", frontendURI);
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",

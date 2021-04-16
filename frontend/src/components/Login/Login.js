@@ -16,7 +16,8 @@ class Login extends Component {
       email: "",
       password: "",
       message: "",
-      redirectVar: null
+      redirectVar: null,
+      token:""
     };
 
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
@@ -54,8 +55,8 @@ class Login extends Component {
   render() {
     if (this.props.user) {
       if (this.props.user.token && this.props.user.token.length > 0) {
-        var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
         localStorage.setItem("token", this.props.user.token);
+        var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
         localStorage.setItem("_id", decoded._id);
         localStorage.setItem("email", decoded.email);
         localStorage.setItem("name",decoded.name);
@@ -69,6 +70,7 @@ class Login extends Component {
     }
     if (this.props.user && this.props.user.message === "login success") {
       this.setState({ redirectVar: <Redirect to="/dashboard" /> });
+      this.props.user.message = "";
     } else if (
       this.props.user &&
       this.props.user.message === "Incorrect username or password."

@@ -14,6 +14,7 @@ class CenterPage extends Component {
       isOpen: false,
       modalEmail: "",
       currency: localStorage.getItem("currency"),
+      update:false
     };
     this.modalEmailHandler = this.modalEmailHandler.bind(this);
   }
@@ -31,7 +32,8 @@ class CenterPage extends Component {
     };
     axios.post(`${uri}/transactions/modal`, data);
     this.setState({ isOpen: false });
-    window.location.reload(true);
+    this.setState({update:true});
+    // window.location.reload(true);
   };
 
   close = () => {
@@ -59,6 +61,31 @@ class CenterPage extends Component {
           oweTransactions: this.state.oweTransactions.concat(response.data),
         });
       });
+  }
+
+  componentDidUpdate(){
+if(this.state.update){
+  axios
+      .get(`${uri}/transactions/lender/`, {
+        params: { email: this.state.email },
+      })
+      .then((response) => {
+        //update the state with the response data
+        this.setState({
+          owedTransactions: response.data,
+        });
+      });
+    axios
+      .get(`${uri}/transactions/borrower/`, {
+        params: { email: this.state.email },
+      })
+      .then((response) => {
+        //update the state with the response data
+        this.setState({
+          oweTransactions: response.data,
+        });
+      });
+}
   }
 
   render() {

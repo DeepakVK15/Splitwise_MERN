@@ -3,7 +3,6 @@ import head from "./logo.png";
 import "./signup.css";
 import { Redirect } from "react-router";
 import validator from "validator";
-import Cookies from "universal-cookie";
 import { connect } from "react-redux";
 import { userSignup } from "../../actions/signupAction";
 import jwt_decode from "jwt-decode";
@@ -83,6 +82,7 @@ class Signup extends Component {
       // const cookies = new Cookies();
       // cookies.set("cookie", this.state.email, { path: "/" });
       redirectVar = <Redirect to="/dashboard" />;
+      this.props.user.message = "";
     } else if (
       this.state.message === "Enter a valid email address." ||
       this.state.message === "Enter a name." ||

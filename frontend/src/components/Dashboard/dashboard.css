@@ -1,15 +1,19 @@
-.dashboard{
-    display:flex; 
-    flex-direction:row;
-     margin-left:275px;
-    }
-
-.dropdown{
-    display:flex; 
-    flex-direction:row;
+.dashboard {
+  display: flex;
+  flex-direction: row;
+  margin-left: 275px;
 }
 
-.split{
-    margin-right:1150px;
+.dropdown {
+  display: flex;
+  flex-direction: row;
 }
 
+.wise {
+  font-family: sans-serif;
+  color: black;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 10px;
+  margin-right: 73%;
+}

@@ -8,27 +8,26 @@ const Users = require('./models/UserModel');
 // Setup work and export for the JWT passport strategy
 function auth() {
     var opts = {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: secret
     };
     passport.use(
-        new JwtStrategy(opts, (jwt_payload, callback) => {
+        new JwtStrategy(opts, (jwt_payload, done) => {
             const user_id = jwt_payload._id;
-            Users.findById(user_id, (err, results) => {
-                if (err) {
-                    return callback(err, false);
-                }
+            Users.findOne({_id:user_id}, (err, results) => {
                 if (results) {
-                    callback(null, results);
+                   return done(null, results);
                 }
-                else {
-                    callback(null, false);
-                }
+                return done(null, false);
             });
         })
     )
 }
 
+function checkAuth(){
+    passport.authenticate('jwt', { session: false });
+}
+
+exports.checkAuth = checkAuth;
 exports.auth = auth;
-exports.checkAuth = passport.authenticate("jwt", { session: false });
 
