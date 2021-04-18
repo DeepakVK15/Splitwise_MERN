@@ -42,7 +42,7 @@ router.post("/addExpense", (req, res) => {
   msg.amount = req.body.amount;
   msg.description = req.body.description;
   kafka.make_request("group", msg, function (err, result) {
-    if (result) console.log("Result ", result);
+    if (result) res.send("Expense Added");
   });
 });
 

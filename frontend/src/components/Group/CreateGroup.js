@@ -136,18 +136,6 @@ class CreateGroup extends Component {
         createdBy: localStorage.getItem("email"),
         createdBy_name:localStorage.getItem("name")
       };
-
-      // axios.defaults.withCredentials = true;
-      // axios
-      //   .post(`${uri}/group/creategroup`, data)
-      //   .then((response) => {
-      //     // eslint-disable-next-line react/no-direct-mutation-state
-      //     // this.setState({errCode :response.status})
-      //     if (response.data.message) {
-      //       this.setState({ errCode: response.data.message });
-      //       console.log("response mesg",response.data.message);
-      //     }
-      //   });
       this.props.createGroup(data);
     }
   }
@@ -155,10 +143,10 @@ class CreateGroup extends Component {
   render() {
     let errMsg = null;
     if(this.props.activities && this.props.activities.message === "Group with the same name already exists."){
-      console.log("Err message set using props");
       errMsg = (<div class="alert alert-danger" role="alert">
       {this.props.activities.message}
     </div>)
+    this.props.activities.message = "";
     }
     
     if (
@@ -248,5 +236,3 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps, { createGroup })(CreateGroup);
-
-// export default CreateGroup;

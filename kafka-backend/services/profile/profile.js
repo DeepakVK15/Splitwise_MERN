@@ -10,20 +10,19 @@ let getUserProfile = async (msg, callback) => {
 };
 
 let updateProfile = async (msg, callback) => {
-    Users.findOne({email:msg.email}, (err, user) =>{
-        if(user){
-            user.email = msg.email,
-            user.name = msg.name,
-            user.phone = msg.phone,
-            user.timezone = msg.timezone,
-            user.language = msg.language,
-            user.currency = msg.currency
-            user.save();
-            callback(null, "Profile updated successfully");
-        }
-    })
-}
+  Users.findOne({ email: msg.email }, (err, user) => {
+    if (user) {
+      (user.email = msg.email),
+        (user.name = msg.name),
+        (user.phone = msg.phone),
+        (user.timezone = msg.timezone),
+        (user.language = msg.language),
+        (user.currency = msg.currency);
+      user.save();
+      callback(null, "Profile updated successfully");
+    }
+  });
+};
 
 exports.getUserProfile = getUserProfile;
 exports.updateProfile = updateProfile;
-

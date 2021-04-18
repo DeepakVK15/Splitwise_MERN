@@ -5,7 +5,10 @@ import "./profile.css";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import validator from "validator";
-import {uri} from '../../uri';
+import { uri } from "../../uri";
+import { updateProfile } from "../../actions/profileAction";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
 class Profile extends Component {
   state = {
@@ -16,12 +19,13 @@ class Profile extends Component {
     language: "",
     currency: "",
     redirectVar: "",
-    update:false,
-    message:""
+    update: false,
+    message: "",
+    image: "",
   };
 
-  componentDidMount() {
-    axios
+  async componentDidMount() {
+    await axios
       .get(`${uri}/profile/`, {
         params: { email: localStorage.getItem("email") },
       })
@@ -34,11 +38,17 @@ class Profile extends Component {
           this.setState({ timezone: response.data[0].timezone });
           this.setState({ language: response.data[0].language });
           this.setState({ currency: response.data[0].currency });
+          this.setState({
+            image: this.state.image.concat(response.data[0].image),
+          });
         }
       });
+    // await axios
+    //   .get(`${uri}/profile/image`, { params: { image: this.state.image } })
+    //   .then((response) => {
+    //     this.setState({ img: response.data });
+    //   });
   }
-
-
 
   nameChange = (e) => {
     this.setState({
@@ -84,42 +94,51 @@ class Profile extends Component {
       timezone: this.state.timezone,
       language: this.state.language,
       currency: this.state.currency,
+      image: this.state.image,
     };
     if (!validator.isEmail(data.email)) {
       this.setState({ message: "Enter a valid email address." });
       console.log("validate email", data.email);
-    }
-    else if(!validator.isMobilePhone(data.phone)){
-        this.setState({message: "Enter a valid phone number."});
-    }
-    else{
-      localStorage.setItem("email",data.email);
+    } else if (!validator.isMobilePhone(data.phone)) {
+      this.setState({ message: "Enter a valid phone number." });
+    } else {
+      localStorage.setItem("email", data.email);
       localStorage.setItem("currency", data.currency);
       localStorage.setItem("name", data.name);
-    axios
-      .post(`${uri}/profile/`, data)
-      .then((response) => {
-        if (response.data === "Profile updated successfully") {
-          this.setState({update:true});
-          this.setState({message:"Profile updated successfully"})
-        }
-      });
+      this.props.updateProfile(data);
+      if (this.props.user === "Profile updated successfully") {
+        this.setState({ update: true });
+        this.setState({ message: "Profile updated successfully" });
+      }
+      // const formData = new FormData();
+      // formData.append("image",this.state.image);
+      // formData.append("id", localStorage.getItem("_id"));
+      // axios
+      //   .post(`${uri}/profile/image`, formData);
     }
   };
+
+  fileSelected = (event) => {
+    this.setState({ image: event.target.files[0] });
+  };
+
   render() {
     let errMsg;
     if (!cookie.load("cookie")) {
       this.setState({ redirectVar: <Redirect to="/" /> });
     }
-    if(this.state.message === "Profile updated successfully"){
-      errMsg = (<div class="alert alert-success" role="alert">
-      {this.state.message}
-    </div>)
-    }
-    else if(this.state.message !== ""){
-        errMsg = (<div class="alert alert-danger" role="alert">
-        {this.state.message}
-      </div>)
+    if (this.state.message === "Profile updated successfully") {
+      errMsg = (
+        <div class="alert alert-success" role="alert">
+          {this.state.message}
+        </div>
+      );
+    } else if (this.state.message !== "") {
+      errMsg = (
+        <div class="alert alert-danger" role="alert">
+          {this.state.message}
+        </div>
+      );
     }
     return (
       <div>
@@ -163,12 +182,17 @@ class Profile extends Component {
                 onChange={this.phoneChange}
                 data-testid="phone"
               />
-              <br/>
+              <br />
               <br />
               <label>Change your Picture</label>
-                <br/>
-                <input type="file"/>
-                <br/>
+              <br />
+              <input
+                onChange={this.fileSelected}
+                type="file"
+                name="image"
+                accept=".png, .jpg, .jpeg"
+              />
+              <br />
             </form>
           </div>
           <div className="profile2">
@@ -488,4 +512,15 @@ class Profile extends Component {
   }
 }
 
-export default Profile;
+Profile.propTypes = {
+  updateProfile: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.profile.user,
+  };
+};
+
+export default connect(mapStateToProps, { updateProfile })(Profile);

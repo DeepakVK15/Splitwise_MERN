@@ -17,7 +17,7 @@ class Login extends Component {
       password: "",
       message: "",
       redirectVar: null,
-      token:""
+      token: "",
     };
 
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
@@ -59,8 +59,8 @@ class Login extends Component {
         var decoded = jwt_decode(this.props.user.token.split(" ")[1]);
         localStorage.setItem("_id", decoded._id);
         localStorage.setItem("email", decoded.email);
-        localStorage.setItem("name",decoded.name);
-        localStorage.setItem("currency",decoded.currency);
+        localStorage.setItem("name", decoded.name);
+        localStorage.setItem("currency", decoded.currency);
       }
     }
 

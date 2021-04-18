@@ -8,7 +8,8 @@ var userSchema = new Schema({
     phone: {type: String, required: false},
     currency: {type: String, required: true},
     language: {type: String, required: true},
-    timezone: {type: String, required: true}
+    timezone: {type: String, required: true},
+    image:{type: String}
 },
 {
     versionKey: false
