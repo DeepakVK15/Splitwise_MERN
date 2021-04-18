@@ -7,6 +7,9 @@ import { Redirect } from "react-router";
 import Head from "../Navbar/Navbar";
 import { Dropdown } from "react-bootstrap";
 import { uri } from "../../uri";
+import PropTypes from "prop-types";
+import { addExpense, settleUp } from "../../actions/groupAction";
+import { connect } from "react-redux";
 
 class Group extends Component {
   constructor(props) {
@@ -173,11 +176,10 @@ class Group extends Component {
       email: localStorage.getItem("email"),
       members: this.state.members,
     };
-    axios.post(`${uri}/group/addExpense`, data);
+    this.props.addExpense(data);
     this.setState({ update: true });
     this.setState({updateBalance:true})
     this.setState({ isOpen: false });
-    // window.location.reload(false);
   };
   addUser = () => {
     const data = {
@@ -213,7 +215,6 @@ class Group extends Component {
   };
   addNote = () => {
     this.setState({ showForm: false });
-    // this.setState({ comments: [] });
   };
   landingPage = () => {
     this.setState({ redirectVar: <Redirect to="/" /> });
@@ -226,15 +227,16 @@ class Group extends Component {
 
   settleUp = () => {
     const data = {
-      name: cookie.load("cookie"),
+      name: localStorage.getItem('email'),
       groupname: this.state.name,
     };
-    axios.post(`${uri}/transactions/settleup`, data).then((response) => {
-      if (response.data === "Balance settled") {
-        // window.location.reload(false);
+    this.props.settleUp(data);
+    // axios.post(`${uri}/transactions/settleup`, data).then((response) => {
+      // console.log("Update Settle up ",this.props.activities);
+      // if (this.props.activities === "Balance settled") {
         this.setState({updateBalance:true});
-      }
-    });
+      // }
+    // });
   };
 
   leaveGroup = () => {
@@ -264,7 +266,6 @@ class Group extends Component {
   };
 
   openNote = (expense) => {
-    // this.setState({updateNote:expense._id});
     axios
       .get(`${uri}/group/note`, {
         params: { expense: expense._id },
@@ -289,10 +290,7 @@ class Group extends Component {
       };
       axios.post(`${uri}/group/note`, data);
       this.setState({updateNotes: localStorage.getItem("expenseid")});
-      // localStorage.removeItem("expenseid");
     }
-    // this.setState({comments:[]});
-    // this.setState({ showForm: false });
   };
 
   removeComment = (comment) => {
@@ -347,15 +345,12 @@ class Group extends Component {
     }
 
     let balance = [];
-    console.log("Length ", this.state.groupBalance);
-
     for (let i = 0; i < this.state.groupBalance.length; i++) {
       if (
         this.state.groupBalance[i].balance !== null &&
         this.state.groupBalance[i].balance !== 0
       ) {
         if (this.state.groupBalance[i].balance > 0) {
-          console.log("Postive values ", this.state.groupBalance[i].balance);
           balance.push(
             <h6>
               {this.state.groupBalance[i].email} gets back {this.state.currency}
@@ -595,4 +590,15 @@ class Group extends Component {
   }
 }
 
-export default Group;
+Group.propTypes = {
+  addExpense: PropTypes.func.isRequired,
+  activities: PropTypes.object.isRequired
+};
+
+const mapStateToProps = (state) => {
+  return {
+    activities: state.group.activities
+  };
+};
+
+export default connect(mapStateToProps, { addExpense, settleUp })(Group);

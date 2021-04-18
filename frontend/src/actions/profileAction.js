@@ -1,18 +1,18 @@
-import { USER_SIGNUP } from "./types";
+import { UPDATE_PROFILE } from "./types";
 import axios from "axios";
 import {uri} from '../uri';
 
-export const userSignup = (data) => dispatch => {
+export const updateProfile = (data) => dispatch => {
     axios.defaults.withCredentials = true;
-    axios.post(`${uri}/signup`, data)
+    axios.post(`${uri}/profile/`, data)
         .then(response => dispatch({
-            type: USER_SIGNUP,
+            type: UPDATE_PROFILE,
             payload: response.data
         }))
         .catch(error => {
             if (error.response && error.response.data) {
                 return dispatch({
-                    type: USER_SIGNUP,
+                    type: UPDATE_PROFILE,
                     payload: error.response.data
                 });
             }

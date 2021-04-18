@@ -16,8 +16,6 @@ function handle_request(message, callback) {
             resultList = resultList.concat(activities);
             if (groups.length === count) {
               console.log("Activities ", activities);
-
-              // res.send(resultList);
               callback(null, resultList);
             }
           }

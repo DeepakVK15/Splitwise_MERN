@@ -1,6 +1,13 @@
 var express = require("express");
 const router = express.Router();
 var kafka = require("../kafka/client");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const Users = require("../models/UserModel");
+const { uploadFile, getFileStream } = require("../s3");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 
 router.get("/", (req, res) => {
   let msg = {};
@@ -27,6 +34,30 @@ router.post("/", (req, res) => {
       res.send(result);
     }
   });
+});
+
+router.post("/image", upload.single("image"), async (req, res) => {
+  const file = req.file;
+  const id = req.body.id;
+  console.log("ID ", id);
+  console.log("File info", file);
+  const result = await uploadFile(file);
+  await unlinkFile(file.path);
+  console.log("Image upload Result ", result);
+  Users.findOne({ _id: id }, (err, user) => {
+    if (user) {
+      user.image = result.key;
+      user.save();
+    }
+    res.send("success");
+  });
+});
+
+router.get("/image", (req, res) => {
+  console.log(req.query.image);
+  const key = req.query.image;
+  const readStream = getFileStream(key);
+  readStream.pipe(res);
 });
 
 module.exports = router;

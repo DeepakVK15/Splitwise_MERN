@@ -4,3 +4,6 @@ export const USER_SIGNUP = 'USER_SIGNUP';
 export const ACCEPT_INVITE = 'ACCEPT_INVITE';
 export const REJECT_INVITE = 'REJECT_INVITE';
 export const CREATE_GROUP = 'CREATE_GROUP';
+export const ADD_EXPENSE = 'ADD_EXPENSE';
+export const SETTLE_UP = 'SETTLE_UP';
+export const UPDATE_PROFILE = 'UPDATE_PROFILE';
