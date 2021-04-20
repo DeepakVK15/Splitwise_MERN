@@ -20,7 +20,7 @@ router.get("/", (req, res) => {
   });
 });
 
-router.post("/", (req, res) => {
+router.put("/", (req, res) => {
   let msg = {};
   msg.route = "updateProfile";
   msg.email = req.body.email;

@@ -11,6 +11,8 @@
   "dependencies": {
     "aws-sdk": "^2.888.0",
     "body-parser": "^1.19.0",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
     "circular-json": "^0.5.9",
     "client-sessions": "^0.8.0",
     "cookie-parser": "^1.4.5",
@@ -19,6 +21,7 @@
     "express-session": "^1.17.1",
     "kafka": "^0.2.3",
     "kafka-node": "^5.0.0",
+    "mocha": "^8.3.2",
     "mongoose": "^5.12.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",

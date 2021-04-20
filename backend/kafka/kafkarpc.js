@@ -17,7 +17,6 @@ KafkaRPC.prototype.makeRequest = function (topic_name, content, callback) {
   self = this;
   //generate a unique correlation id for this call
   var correlationId = crypto.randomBytes(16).toString("hex");
-    console.log("KAFKARPC");
   //create a timeout for what should happen if we don't get a response
   var tId = setTimeout(
     function (corr_id) {
@@ -58,7 +57,7 @@ KafkaRPC.prototype.makeRequest = function (topic_name, content, callback) {
       if (err) {
         console.log(err);
       } else {
-        console.log(data);
+        // console.log(data);
       }
     });
   });
