@@ -1,0 +1,2 @@
+[2021-04-12 14:53:33,310] INFO [GroupCoordinator 0]: Member kafka-demo-40fb0c34-feaf-4af4-ba42-36028d2fd097 in group kafka-demo has failed, removing it from the group (kafka.coordinator.group.GroupCoordinator)
+[2021-04-12 14:53:39,469] INFO [GroupCoordinator 0]: Preparing to rebalance group kafka-demo in state PreparingRebalance with old generation 9 (__consumer_offsets-6) (reason: removing member kafka-demo-40fb0c34-feaf-4af4-ba42-36028d2fd097 on heartbeat expiration) (kafka.coordinator.group.GroupCoordinator)
