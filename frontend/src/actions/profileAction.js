@@ -4,7 +4,7 @@ import {uri} from '../uri';
 
 export const updateProfile = (data) => dispatch => {
     axios.defaults.withCredentials = true;
-    axios.post(`${uri}/profile/`, data)
+    axios.put(`${uri}/profile/`, data)
         .then(response => dispatch({
             type: UPDATE_PROFILE,
             payload: response.data

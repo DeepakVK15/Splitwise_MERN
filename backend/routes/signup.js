@@ -22,7 +22,6 @@ router.post("/", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log("Logging result ", result);
         if (result.message === "sign up success") {
           const payload = {
             _id: result._id,

@@ -1,5 +1,6 @@
 const Users = require("../models/UserModel");
 const GroupUsers = require("../models/GroupUsersModel");
+const Invite = require("../models/InviteModel");
 var kafka = require("../kafka/client");
 
 var express = require("express");
@@ -147,6 +148,17 @@ router.post("/deleteNote", (req, res) => {
   kafka.make_request("group", msg, function (err, result) {
     if (result) console.log("Result ", result);
   });
+});
+
+router.post("/addUserToGroup", function (req, res) {
+ 
+  let invite = new Invite({
+    invite_by:req.body.invitedby,
+    invite_to:req.body.email,
+    groupname:req.body.groupname
+  });
+  invite.save();
+    res.send("Invite sent to user.");
 });
 
 module.exports = router;

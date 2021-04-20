@@ -181,16 +181,17 @@ class Group extends Component {
     this.setState({updateBalance:true})
     this.setState({ isOpen: false });
   };
+  
   addUser = () => {
     const data = {
       groupname: this.state.name,
       email: this.state.email,
-      invitedby: cookie.load("cookie"),
+      invitedby: localStorage.getItem("email"),
     };
     axios.post(`${uri}/group/addUserToGroup`, data);
 
     this.setState({ isOpen: false });
-    window.location.reload(true);
+    // window.location.reload(true);
   };
 
   updateGrpName = () => {

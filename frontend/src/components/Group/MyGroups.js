@@ -129,7 +129,7 @@ class MyGroups extends Component {
     const invites = this.state.invites.map((invite) => (
       <div>
         <label>
-          {invite.invite_by} has invited you to join "{invite.groupname}"
+          {invite.invite_by.split('@')[0]} has invited you to join "{invite.groupname}"
         </label>
         &nbsp;
         <Button
