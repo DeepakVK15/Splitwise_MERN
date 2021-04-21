@@ -22,6 +22,7 @@ class Profile extends Component {
     update: false,
     message: "",
     image: "",
+    img:null
   };
 
   async componentDidMount() {
@@ -39,15 +40,17 @@ class Profile extends Component {
           this.setState({ language: response.data[0].language });
           this.setState({ currency: response.data[0].currency });
           this.setState({
-            image: this.state.image.concat(response.data[0].image),
+            image: response.data[0].image,
           });
         }
       });
-    // await axios
-    //   .get(`${uri}/profile/image`, { params: { image: this.state.image } })
-    //   .then((response) => {
-    //     this.setState({ img: response.data });
-    //   });
+      if(this.state.image){
+    await axios
+      .get(`${uri}/profile/image`, { params: { image: this.state.image } })
+      .then((response) => {
+        this.setState({ img: response.data });
+      });
+    }
   }
 
   nameChange = (e) => {
@@ -86,6 +89,11 @@ class Profile extends Component {
     });
   };
 
+  onFileChange = event => {
+    // Update the state
+    this.setState({ img: event.target.files[0] });
+  };
+  
   save = () => {
     const data = {
       name: this.state.name,
@@ -110,16 +118,13 @@ class Profile extends Component {
         this.setState({ update: true });
         this.setState({ message: "Profile updated successfully" });
       }
-      // const formData = new FormData();
-      // formData.append("image",this.state.image);
-      // formData.append("id", localStorage.getItem("_id"));
-      // axios
-      //   .post(`${uri}/profile/image`, formData);
+      if(this.state.img){
+      const formData = new FormData();
+      formData.append("img", this.state.img);
+      formData.append("id", localStorage.getItem("_id"));
+      axios.post(`${uri}/profile/image`, formData);
+      }
     }
-  };
-
-  fileSelected = (event) => {
-    this.setState({ image: event.target.files[0] });
   };
 
   render() {
@@ -138,6 +143,14 @@ class Profile extends Component {
         <div class="alert alert-danger" role="alert">
           {this.state.message}
         </div>
+      );
+    }
+    let display;
+    if (this.state.image) {
+      display = (
+        <img alt=""
+          src={"http://localhost:3001/profile/image?image=" + this.state.image}
+        ></img>
       );
     }
     return (
@@ -186,12 +199,8 @@ class Profile extends Component {
               <br />
               <label>Change your Picture</label>
               <br />
-              <input
-                onChange={this.fileSelected}
-                type="file"
-                name="image"
-                accept=".png, .jpg, .jpeg"
-              />
+              {display}
+              <input type="file" name="img" id='img' onChange={this.onFileChange} />
               <br />
             </form>
           </div>

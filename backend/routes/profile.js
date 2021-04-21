@@ -36,7 +36,7 @@ router.put("/", (req, res) => {
   });
 });
 
-router.post("/image", upload.single("image"), async (req, res) => {
+router.post("/image", upload.single("img"), async (req, res) => {
   const file = req.file;
   const id = req.body.id;
   console.log("ID ", id);
@@ -54,7 +54,6 @@ router.post("/image", upload.single("image"), async (req, res) => {
 });
 
 router.get("/image", (req, res) => {
-  console.log(req.query.image);
   const key = req.query.image;
   const readStream = getFileStream(key);
   readStream.pipe(res);

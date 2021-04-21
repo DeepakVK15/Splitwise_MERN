@@ -132,7 +132,6 @@ class CreateGroup extends Component {
       const data = {
         groupname: this.state.groupname,
         members: this.state.members,
-        // image: this.state.image,
         createdBy: localStorage.getItem("email"),
         createdBy_name:localStorage.getItem("name")
       };
