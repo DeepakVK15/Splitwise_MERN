@@ -95,7 +95,7 @@ router.post("/leaveGroup", (req, res) => {
   msg.groupname = req.body.groupname;
   msg.route = "getBalance";
   kafka.make_request("group", msg, function (err, result) {
-    if (result) {
+    if (result && result[0].balance) {
       if (result[0].balance > 0) {
         res.send(
           "Please clear your dues and leave the group after recieving the amount you are owed."

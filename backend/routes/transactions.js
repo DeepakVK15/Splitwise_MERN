@@ -40,7 +40,7 @@ router.post("/modal", (req, res) => {
   let msg = {};
   msg.route = "modal";
   msg.modalEmail = req.body.modalEmail;
-  msg.email = req.body.email;
+  msg.id = req.body.id;
   kafka.make_request("transaction", msg, function (err, result) {
     if (result) {
       console.log("settled ", result);

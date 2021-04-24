@@ -22,7 +22,8 @@ class Profile extends Component {
     update: false,
     message: "",
     image: "",
-    img:null
+    img: null,
+    profileUpdate: false
   };
 
   async componentDidMount() {
@@ -44,12 +45,12 @@ class Profile extends Component {
           });
         }
       });
-      if(this.state.image){
-    await axios
-      .get(`${uri}/profile/image`, { params: { image: this.state.image } })
-      .then((response) => {
-        this.setState({ img: response.data });
-      });
+    if (this.state.image) {
+      await axios
+        .get(`${uri}/profile/image`, { params: { image: this.state.image } })
+        .then((response) => {
+          this.setState({ img: response.data });
+        });
     }
   }
 
@@ -89,11 +90,11 @@ class Profile extends Component {
     });
   };
 
-  onFileChange = event => {
+  onFileChange = (event) => {
     // Update the state
     this.setState({ img: event.target.files[0] });
   };
-  
+
   save = () => {
     const data = {
       name: this.state.name,
@@ -118,11 +119,11 @@ class Profile extends Component {
         this.setState({ update: true });
         this.setState({ message: "Profile updated successfully" });
       }
-      if(this.state.img){
-      const formData = new FormData();
-      formData.append("img", this.state.img);
-      formData.append("id", localStorage.getItem("_id"));
-      axios.post(`${uri}/profile/image`, formData);
+      if (this.state.img) {
+        const formData = new FormData();
+        formData.append("img", this.state.img);
+        formData.append("id", localStorage.getItem("_id"));
+        axios.post(`${uri}/profile/image`, formData);
       }
     }
   };
@@ -148,7 +149,8 @@ class Profile extends Component {
     let display;
     if (this.state.image) {
       display = (
-        <img alt=""
+        <img
+          alt=""
           src={"http://localhost:3001/profile/image?image=" + this.state.image}
         ></img>
       );
@@ -200,7 +202,12 @@ class Profile extends Component {
               <label>Change your Picture</label>
               <br />
               {display}
-              <input type="file" name="img" id='img' onChange={this.onFileChange} />
+              <input
+                type="file"
+                name="img"
+                id="img"
+                onChange={this.onFileChange}
+              />
               <br />
             </form>
           </div>

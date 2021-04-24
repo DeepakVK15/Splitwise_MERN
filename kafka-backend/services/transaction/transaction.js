@@ -36,7 +36,6 @@ let borrower = async (msg, callback) => {
 
 let settleUp = async (msg, callback) => {
   let userid;
-
   Users.findOne({ email: msg.name }, (err, usr) => {
     if (err) {
       console.log("Errrrrrr ", err);
@@ -44,12 +43,10 @@ let settleUp = async (msg, callback) => {
     if (usr) {
       userid = usr._id;
       Transaction.deleteMany(
-        { borrowerid: usr._id },
-        { groupid: msg.groupname },
+        { borrowerid: usr._id, groupid: msg.groupname},
         (error, transaction) => {
           if (error) console.log("Here ", error);
           else {
-            console.log("User id2 ", userid);
             callback(null, "Balance settled");
           }
         }
@@ -71,11 +68,12 @@ let settleUp = async (msg, callback) => {
 };
 
 let modal = async (msg, callback) => {
+  console.log("email ", msg.modalEmail);
+  console.log("ID ",msg.id);
   Users.findOne({ email: msg.modalEmail }, (err, user) => {
     if (user) {
       Transaction.deleteMany(
-        { borrowerid: msg.email },
-        { lenderid: msg.modalEmail },
+        { borrowerid: msg.id, lenderid: user._id },
         (error, transaction) => {
           if (error) console.log(error);
           else {

@@ -8,35 +8,6 @@ var kafka = require("../kafka/client");
 auth();
 
 router.post("/", (req, res) => {
-  // const password = req.body.password;
-  // Users.findOne({ email: req.body.email }, (error, user) => {
-  //   if (error) {
-  //     res.writeHead(500, {
-  //       "Content-Type": "text/plain",
-  //     });
-  //     res.end("Error Occured");
-  //   }
-  //   if (user && passwordHash.verify(password, user.password)) {
-  //     const payload = {
-  //       _id: user._id,
-  //       email: user.email,
-  //       name: user.name,
-  //       currency: user.currency,
-  //     };
-  //     const token = jwt.sign(payload, secret, {
-  //       expiresIn: 1008000,
-  //     });
-  //     res.cookie("cookie", user.email, {
-  //       maxAge: 900000,
-  //       httpOnly: false,
-  //       path: "/",
-  //     });
-  //     req.session.user = user;
-  //     res.send({ message: "login success", token: "JWT " + token });
-  //   } else {
-  //     res.send({ message: "Incorrect username or password." });
-  //   }
-  // });
   kafka.make_request(
       "login",
       {
