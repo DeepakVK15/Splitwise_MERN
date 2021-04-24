@@ -6,10 +6,11 @@ Install Node.js and clone this repository before executing the below steps..
 
 1. Download a stable version of Apache Kafka using the link https://kafka.apache.org/downloads.html.
 2. Unzip the folder,open the terminal in the unzipped kafka folder.
-3. Execute bin/zookeeper-server-start.sh config/zookeeper.properties
+3. Execute bin/zookeeper-server-start.sh config/zookeeper.properties.
 4. Execute bin/kafka-server-start.sh config/server.properties.
 5. Create the following topics: login, signup, group, mygroups, transaction, activity, profile, response_topic using the below command.
-   bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic topic_name(run one by one for the above mentioned topics).
+   
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic topic_name(run one by one for the above mentioned topics).
    
 # Backend
 
@@ -29,7 +30,7 @@ Install Node.js and clone this repository before executing the below steps..
 
 1. Open a new terminal and navigate to kafka-backend folder of this cloned repository.
 2. Run "npm install" to install all the dependencies.
-3. Update connection.js in the kafka-backend/kafka folder with the backend server's IP address..
+3. Update connection.js in the kafka-backend/kafka folder with the backend server's IP address.
 4. Run "node server.js" to start the kafka-backend server.
 
 # Launch
